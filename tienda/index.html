@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sistema de ventas Servicom Group</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../compartido/css/base.css">
+<link rel="stylesheet" href="css/tienda.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand"><span class="brand-mark">S</span><span>Servicom Group</span></div>
+  <nav>
+    <a href="#catalogo">Catálogo</a>
+    <button class="icon-btn fav-nav-btn" id="favBtn" type="button">♡ Favoritos <b id="favCount">0</b></button>
+    <button class="icon-btn" id="ordersBtn">📦 Pedidos</button>
+    <button class="icon-btn cart-btn" id="cartBtn">🛒 Carrito <b id="cartCount">0</b></button>
+    <button class="theme-switch" id="themeToggle" type="button" aria-label="Cambiar modo de color" title="Cambiar modo de color"><span class="theme-track"><span class="theme-thumb"><span class="theme-icon">☀</span></span></span></button>
+    <a class="admin-link" href="../admin/">Administración</a>
+  </nav>
+</header>
+<main>
+<section class="hero">
+  <div>
+    <p class="eyebrow">TECNOLOGÍA Y EQUIPAMIENTO</p>
+    <h1>Equipa tu oficina con <em>tecnología confiable</em></h1>
+    <p>Encuentra laptops, periféricos y equipos de red, revisa sus características a detalle y arma tu pedido en minutos, con seguimiento de principio a fin.</p>
+    <div class="hero-actions">
+      <a class="primary-btn" href="#catalogo">Ver catálogo</a>
+      <button class="secondary-btn" id="heroOrdersBtn" type="button">Rastrear un pedido</button>
+    </div>
+    <div class="trust-row">
+      <div class="trust-item"><span>🚚</span>Entrega en 24–48h</div>
+      <div class="trust-item"><span>🛡️</span>Compra protegida</div>
+      <div class="trust-item"><span>🔧</span>Soporte técnico incluido</div>
+    </div>
+  </div>
+  <div class="hero-card">
+    <div class="hero-card-icon">💻</div>
+    <strong>Catálogo tecnológico</strong>
+    <small>Selecciona un producto para ver su detalle, guardarlo en favoritos o agregarlo al carrito en un clic.</small>
+    <span class="hero-signal"><i></i>Stock actualizado en tiempo real</span>
+  </div>
+</section>
+
+<section id="catalogo" class="section">
+  <div class="section-head">
+    <div><p class="eyebrow">PRODUCTOS</p><h2>Catálogo tecnológico</h2></div>
+    <div class="filters">
+      <div class="search-wrap" id="searchWrap">
+        <input id="search" type="search" placeholder="Buscar producto..." autocomplete="off">
+        <button class="search-clear" id="searchClear" type="button" aria-label="Limpiar búsqueda">×</button>
+      </div>
+      <select id="category"></select>
+      <select id="sortBy">
+        <option value="">Ordenar: relevancia</option>
+        <option value="price-asc">Precio: menor a mayor</option>
+        <option value="price-desc">Precio: mayor a menor</option>
+        <option value="name-asc">Nombre: A–Z</option>
+        <option value="stock-desc">Más disponibilidad</option>
+      </select>
+      <button class="fav-filter-btn" id="onlyFavBtn" type="button">♥ Solo favoritos</button>
+    </div>
+  </div>
+  <div id="productsGrid" class="product-grid"></div>
+</section>
+
+<section id="recientes" class="section recent-section hidden">
+  <div class="section-head"><div><p class="eyebrow">TU ACTIVIDAD</p><h2>Vistos recientemente</h2></div></div>
+  <div id="recentGrid" class="recent-grid"></div>
+</section>
+</main>
+
+<div id="drawerBackdrop" class="backdrop hidden"></div>
+<aside id="cartDrawer" class="drawer">
+  <div class="drawer-head">
+    <div><h2>🛒 Carrito</h2><p id="cartSummary">0 productos</p></div>
+    <div class="drawer-head-actions">
+      <button class="clear-cart-btn" id="clearCartBtn" type="button">Vaciar</button>
+      <button class="close-btn" data-close-cart>×</button>
+    </div>
+  </div>
+  <div id="shippingProgress" class="shipping-progress hidden"></div>
+  <div id="cartNotifications" class="cart-notifications" aria-live="polite"></div>
+  <div id="cartItems" class="drawer-body"></div>
+  <div class="drawer-footer">
+    <div class="total-row"><span>Total</span><strong id="cartTotal">S/ 0.00</strong></div>
+    <button id="checkoutBtn" class="primary-btn full">Continuar compra</button>
+  </div>
+</aside>
+
+<section id="productModal" class="modal hidden"><div class="modal-card product-modal"><button class="close-btn modal-close" data-close="productModal">×</button><div id="productDetail"></div></div></section>
+<section id="ordersModal" class="modal hidden"><div class="modal-card wide"><button class="close-btn modal-close" data-close="ordersModal">×</button><p class="eyebrow">SEGUIMIENTO</p><h2>Mis pedidos</h2><div id="ordersList"></div></div></section>
+<section id="checkoutModal" class="modal hidden"><div class="modal-card checkout-card"><button class="close-btn modal-close" data-close="checkoutModal">×</button><div id="checkoutContent"></div></div></section>
+<div id="toast" class="toast"></div>
+<footer>Servicom Group · Demo local · El pago y voucher son simulados.</footer>
+<script src="../compartido/js/tema.js"></script><script src="../compartido/js/imagenes-db.js"></script><script src="../compartido/js/datos.js"></script><script src="../compartido/js/utilidades.js"></script><script src="favoritos/favoritos.js"></script><script src="recientes/recientes.js"></script><script src="carrito/sincronizacion.js"></script><script src="carrito/carrito.js"></script><script src="catalogo/imagenes.js"></script><script src="catalogo/catalogo.js"></script><script src="catalogo/detalle.js"></script><script src="compra/checkout.js"></script><script src="pedidos/pedidos.js"></script><script src="principal.js"></script>
+</body></html>

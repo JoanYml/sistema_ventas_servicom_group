@@ -1,0 +1,13 @@
+{
+  "name": "sistema-ventas-servicom-group",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Sistema de ventas Servicom Group: tienda y panel de administración.",
+  "scripts": {
+    "dev": "node scripts/servidor-dev.js",
+    "start": "node scripts/servidor-dev.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

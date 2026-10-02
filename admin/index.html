@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Administración — Servicom Group</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../compartido/css/base.css">
+<link rel="stylesheet" href="css/admin.css"></head>
+<body class="admin-body"><header class="topbar"><div class="brand"><span class="brand-mark">S</span><span>Servicom Group · Administración</span></div><nav><a href="../tienda/">← Volver a tienda</a><button class="theme-switch" id="themeToggle" type="button" aria-label="Cambiar modo de color" title="Cambiar modo de color"><span class="theme-track"><span class="theme-thumb"><span class="theme-icon">☀</span></span></span></button></nav></header>
+<main class="admin-main"><section class="admin-title"><div><p class="eyebrow">PANEL ADMINISTRATIVO</p><h1>Catálogo y pedidos</h1><p>Administra productos tecnológicos, precios, stock y estados.</p></div><button id="resetData" class="secondary-btn">Restaurar datos demo</button></section><div class="stats" id="stats"></div>
+<section class="admin-card"><div class="section-head compact"><div><h2>Productos tecnológicos</h2><p>Edición directa de precio y stock.</p></div><button id="addProduct" class="primary-btn">+ Nuevo producto</button></div><div class="table-wrap"><table><thead><tr><th>Producto</th><th>Categoría</th><th>Precio</th><th>Stock</th><th>Activo</th><th>Acción</th></tr></thead><tbody id="productsTable"></tbody></table></div></section>
+<section class="admin-card"><div class="section-head compact"><div><h2>Pedidos</h2><p>Actualiza el estado para simular el seguimiento.</p></div></div><div class="table-wrap"><table><thead><tr><th>Pedido</th><th>Cliente</th><th>Total</th><th>Fecha</th><th>Estado</th><th>Detalle</th></tr></thead><tbody id="ordersTable"></tbody></table></div></section></main>
+<div id="adminModal" class="modal hidden"><div class="modal-card"><button class="close-btn modal-close" data-close="adminModal">×</button><h2>Nuevo producto tecnológico</h2><form id="productForm" class="form-grid"><label>Nombre<input name="name" required></label>
+<label class="category-field">Categoría
+  <div class="category-row">
+    <div class="select-wrap">
+      <select name="category" id="productCategory" required aria-label="Seleccionar categoría"></select>
+    </div>
+    <button type="button" id="createCategory" class="add-category-btn" title="Agregar nueva categoría" aria-label="Agregar nueva categoría">+</button>
+  </div>
+</label>
+<label>Precio (S/)<input name="price" type="number" step=".01" min="0" required></label>
+<label>Stock<input name="stock" type="number" min="0" required></label>
+<label class="span-2">Descripción<textarea name="description"></textarea></label>
+<label class="file-field">Imagen de icono
+  <span class="file-input-wrap"><input id="productIconImage" name="iconImage" type="file" accept="image/png,image/jpeg,image/webp" aria-describedby="iconDimensionHelp"><span class="file-button">Elegir icono</span><span class="file-name" id="iconFileName">Ningún archivo seleccionado</span></span>
+  <small id="iconDimensionHelp" class="image-dimension-help">Dimensión obligatoria: 600 × 400 px. El icono se adapta al área celeste dejando un pequeño margen.</small>
+  <div id="iconImagePreview" class="single-image-preview"></div>
+</label>
+<label class="file-field">Imágenes de detalle
+  <span class="file-input-wrap"><input id="productImages" name="images" type="file" accept="image/png,image/jpeg,image/webp" multiple aria-describedby="detailDimensionHelp"><span class="file-button">Agregar imágenes</span><span class="file-name" id="detailFileName">Ninguna imagen seleccionada</span></span>
+  <small id="detailDimensionHelp" class="image-dimension-help">Dimensión obligatoria: 800 × 1200 px. Puedes agregar varias imágenes verticales.</small>
+  <div id="detailImagesPreview" class="image-previews"></div>
+</label>
+<small class="span-2 image-help">El icono se utiliza en el catálogo. Las imágenes de detalle aparecen como un carrusel al abrir el producto.</small>
+<button class="primary-btn span-2">Guardar producto</button></form></div></div>
+<div id="categoryModal" class="modal hidden category-modal" aria-hidden="true">
+  <div class="category-modal-card">
+    <button class="close-btn category-close" type="button" aria-label="Cerrar">×</button>
+    <div class="category-icon">+</div>
+    <h3>Agregar categoría</h3>
+    <p>Crea una nueva categoría para usarla en tus productos.</p>
+    <label for="newCategoryName">Nombre de la categoría</label>
+    <input id="newCategoryName" type="text" maxlength="40" placeholder="Ej. Componentes" autocomplete="off">
+    <div class="category-modal-actions">
+      <button type="button" class="secondary-btn category-cancel">Cancelar</button>
+      <button type="button" class="primary-btn" id="saveCategory">Agregar categoría</button>
+    </div>
+  </div>
+</div>
+<div id="toast" class="toast"></div><script src="../compartido/js/tema.js"></script><script src="../compartido/js/imagenes-db.js"></script><script src="../compartido/js/datos.js"></script><script src="../compartido/js/utilidades.js"></script><script src="panel/panel.js"></script><script src="catalogo/productos.js"></script><script src="catalogo/categorias.js"></script><script src="catalogo/imagenes.js"></script><script src="catalogo/formulario-producto.js"></script><script src="principal.js"></script></body></html>
