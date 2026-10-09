@@ -46,7 +46,8 @@ sistema_ventas_servicom_group/
     ├── index.html
     ├── css/admin.css
     ├── principal.js
-    ├── panel/     (panel.js)
+    ├── panel/     (panel.js, navegacion.js)
+    ├── pedidos/   (pedidos.js)
     └── catalogo/  (productos.js, categorias.js, imagenes.js, formulario-producto.js)
 ```
 
@@ -59,7 +60,7 @@ Los scripts son clásicos (no módulos) y se cargan en el orden indicado al fina
 - Carrito con cantidades, eliminación individual y avisos de cambios de precio y stock.
 - Compra con datos de entrega, pago simulado y voucher.
 - Historial de pedidos con seguimiento y opción de comprar de nuevo.
-- Administración de productos (precio, stock, estado), categorías y pedidos.
+- Administración con menú lateral y tres pestañas: Dashboard, Categorías (productos agrupados por categoría) y Pedidos.
 - Modo claro y oscuro.
 
 ## Almacenamiento
@@ -250,18 +251,40 @@ Portada, catálogo y tarjetas, carrito lateral, detalle y carrusel, checkout y v
 
 | Función | Qué hace |
 |---|---|
+| `LOW_STOCK_LIMIT` | Stock máximo (10) para considerar un producto con stock bajo. |
 | `renderStats()` | Muestra los indicadores: productos, activos, pedidos y ventas demo. |
-| `renderOrdersTable()` | Dibuja la tabla de pedidos con su estado y detalle. |
-| `updateOrderStatus(id, s)` | Cambia el estado de seguimiento de un pedido. |
-| `render()` | Actualiza todo el panel: estadísticas, productos y pedidos. |
+| `renderRecentOrders()` | Lista los 5 pedidos más recientes con total y estado. |
+| `renderLowStock()` | Lista los productos con stock bajo o agotados. |
+| `renderCategorySummary()` | Muestra por categoría la cantidad de productos y unidades en stock con barras. |
+| `render()` | Actualiza todo el panel: dashboard, categorías, pedidos y contador del menú. |
 
 También conecta el botón "Restaurar datos demo".
+
+### `admin/panel/navegacion.js`
+
+| Elemento | Qué hace |
+|---|---|
+| `ADMIN_VIEWS` | Pestañas disponibles: `dashboard`, `categorias` y `pedidos`. |
+| `showView(name)` | Muestra la pestaña elegida, marca el enlace activo del menú lateral y oculta las demás. |
+
+La pestaña activa se guarda en la URL (`#dashboard`, `#categorias`, `#pedidos`), así que se conserva al recargar.
+
+### `admin/pedidos/pedidos.js`
+
+| Función | Qué hace |
+|---|---|
+| `ORDER_STATUSES` | Estados de seguimiento: Confirmado, Despachando, Enviando, Entregado. |
+| `renderOrdersTable()` | Dibuja la tabla de pedidos con su estado y detalle. |
+| `updateOrderStatus(id, s)` | Cambia el estado de seguimiento de un pedido. |
+| `updateOrdersBadge()` | Muestra en el menú cuántos pedidos aún no están entregados. |
 
 ### `admin/catalogo/productos.js`
 
 | Función | Qué hace |
 |---|---|
-| `renderProductsTable()` | Dibuja la tabla de productos con precio, stock y estado editables. |
+| `closedCategories` | Categorías que el administrador colapsó, para mantenerlas cerradas al refrescar. |
+| `productRowHTML(p)` | Construye la fila de un producto con precio, stock y estado editables. |
+| `renderCategoryGroups()` | Dibuja un grupo desplegable por categoría con su tabla de productos. |
 | `updateProduct(id, k, v)` | Modifica precio, stock o estado activo; la tienda detecta el cambio automáticamente. |
 | `deleteProduct(id)` | Elimina un producto previa confirmación. |
 
@@ -303,7 +326,7 @@ Migra imágenes antiguas a IndexedDB, conecta el cierre de modales (`data-close`
 
 ### `admin/css/admin.css`
 
-Títulos y tarjetas del panel, indicadores, tablas, formulario de producto, selector de categoría, carga y vista previa de imágenes, ventana de nueva categoría, responsive y modo oscuro del admin.
+Menú lateral, títulos y tarjetas del panel, indicadores, tarjetas del dashboard, grupos por categoría, tablas, formulario de producto, selector de categoría, carga y vista previa de imágenes, ventana de nueva categoría, responsive y modo oscuro del admin.
 
 ---
 
@@ -311,6 +334,7 @@ Títulos y tarjetas del panel, indicadores, tablas, formulario de producto, sele
 
 - `app.js`, `admin.js`, `styles.css`, `theme.js` e `image-db.js` se repartieron por funcionalidad en las carpetas `tienda/`, `admin/` y `compartido/`.
 - `getDB`, `saveDB`, `money`, `toast`, `$` y los productos de demostración estaban repetidos en `app.js` y `admin.js`; ahora hay una sola copia en `compartido/`.
-- La función `render()` del admin se dividió en `renderStats`, `renderProductsTable` y `renderOrdersTable`, y `render()` las llama juntas.
+- El admin ahora tiene menú lateral con tres pestañas (Dashboard, Categorías y Pedidos); los pedidos pasaron a `admin/pedidos/`.
+- La función `render()` del admin se dividió en `renderStats`, `renderCategoryGroups` y `renderOrdersTable`, y `render()` las llama juntas.
 - Se eliminaron todos los comentarios del código; esta documentación reemplaza a `DOCUMENTACION.md`.
 - El resto de la lógica no se modificó.
