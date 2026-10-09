@@ -9,7 +9,7 @@
 <div class="admin-layout">
 <aside class="sidebar"><p class="sidebar-label">Menú</p><nav class="sidebar-nav" aria-label="Secciones del panel">
 <button type="button" class="sidebar-link active" data-view="dashboard"><span class="sidebar-icon">▦</span><span>Dashboard</span></button>
-<button type="button" class="sidebar-link" data-view="categorias"><span class="sidebar-icon">🗂</span><span>Categorías</span></button>
+<button type="button" class="sidebar-link" data-view="productos"><span class="sidebar-icon">📦</span><span>Productos</span></button>
 <button type="button" class="sidebar-link" data-view="pedidos"><span class="sidebar-icon">🧾</span><span>Pedidos</span><span class="sidebar-badge" id="ordersBadge"></span></button>
 </nav></aside>
 <main class="admin-main">
@@ -17,10 +17,17 @@
 <div class="dash-grid"><section class="admin-card"><div class="section-head compact"><div><h2>Pedidos recientes</h2><p>Los últimos 5 pedidos registrados.</p></div></div><div id="recentOrders"></div></section>
 <section class="admin-card"><div class="section-head compact"><div><h2>Stock bajo</h2><p>Productos con 10 unidades o menos.</p></div></div><div id="lowStock"></div></section>
 <section class="admin-card dash-wide"><div class="section-head compact"><div><h2>Productos por categoría</h2><p>Cantidad de productos y unidades en stock.</p></div></div><div id="categorySummary"></div></section></div></section>
-<section class="admin-view hidden" data-panel="categorias"><div class="admin-title"><div><p class="eyebrow">CATÁLOGO</p><h1>Categorías de productos</h1><p>Productos agrupados por categoría. Edita precio, stock y estado directamente.</p></div><button id="addProduct" class="primary-btn">+ Nuevo producto</button></div><div id="categoriesGroups"></div></section>
+<section class="admin-view hidden" data-panel="productos"><div class="admin-title"><div><p class="eyebrow">CATÁLOGO</p><h1>Productos</h1><p>Todos los productos del catálogo. Filtra por nombre, categoría o stock y edita cada producto.</p></div><button id="addProduct" class="primary-btn">+ Nuevo producto</button></div>
+<section class="admin-card"><div class="product-filters">
+<label class="filter-field filter-search">Buscar por nombre<input id="filterName" type="search" placeholder="Ej. Laptop" autocomplete="off"></label>
+<label class="filter-field">Categoría<select id="filterCategory"></select></label>
+<label class="filter-field">Stock<select id="filterStock"><option value="all">Todos</option><option value="low">Bajo (10 o menos)</option><option value="high">Alto (más de 10)</option></select></label>
+<button type="button" id="clearFilters" class="secondary-btn">Limpiar filtros</button></div>
+<p id="productsCount" class="products-count"></p>
+<div class="table-wrap"><table><thead><tr><th>Producto</th><th>Categoría</th><th>Precio (S/)</th><th>Stock</th><th>Activo</th><th>Acciones</th></tr></thead><tbody id="productsTable"></tbody></table></div></section></section>
 <section class="admin-view hidden" data-panel="pedidos"><div class="admin-title"><div><p class="eyebrow">VENTAS</p><h1>Pedidos</h1><p>Actualiza el estado para simular el seguimiento.</p></div></div><section class="admin-card"><div class="table-wrap"><table><thead><tr><th>Pedido</th><th>Cliente</th><th>Total</th><th>Fecha</th><th>Estado</th><th>Detalle</th></tr></thead><tbody id="ordersTable"></tbody></table></div></section></section>
 </main></div>
-<div id="adminModal" class="modal hidden"><div class="modal-card"><button class="close-btn modal-close" data-close="adminModal">×</button><h2>Nuevo producto tecnológico</h2><form id="productForm" class="form-grid"><label>Nombre<input name="name" required></label>
+<div id="adminModal" class="modal hidden"><div class="modal-card"><button class="close-btn modal-close" data-close="adminModal">×</button><h2 id="productModalTitle">Nuevo producto tecnológico</h2><form id="productForm" class="form-grid"><label>Nombre<input name="name" required></label>
 <label class="category-field">Categoría
   <div class="category-row">
     <div class="select-wrap">
@@ -42,8 +49,9 @@
   <small id="detailDimensionHelp" class="image-dimension-help">Dimensión obligatoria: 800 × 1200 px. Puedes agregar varias imágenes verticales.</small>
   <div id="detailImagesPreview" class="image-previews"></div>
 </label>
+<small id="editImagesNote" class="span-2 image-help hidden">Estás editando un producto: si no eliges imágenes nuevas, se conservan las actuales.</small>
 <small class="span-2 image-help">El icono se utiliza en el catálogo. Las imágenes de detalle aparecen como un carrusel al abrir el producto.</small>
-<button class="primary-btn span-2">Guardar producto</button></form></div></div>
+<button type="submit" id="saveProductBtn" class="primary-btn span-2">Guardar producto</button></form></div></div>
 <div id="categoryModal" class="modal hidden category-modal" aria-hidden="true">
   <div class="category-modal-card">
     <button class="close-btn category-close" type="button" aria-label="Cerrar">×</button>
