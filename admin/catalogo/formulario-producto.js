@@ -27,29 +27,28 @@ $("#productForm").onsubmit=async e=>{
   const saveButton=$("#saveProductBtn");
   saveButton.disabled=true;saveButton.textContent="Guardando...";
   try{
-    await migrateImagesToIndexedDB(DB_KEY);
     const hasNewIcon=!!(iconImageFile&&iconImageFile.size>0);
     if(hasNewIcon)await validateImageDimensions(iconImageFile,ICON_WIDTH,ICON_HEIGHT);
     for(const file of detailImageFiles)await validateImageDimensions(file,DETAIL_WIDTH,DETAIL_HEIGHT);
-    const db=getDB();
     if(editing){
-      const p=db.products.find(x=>x.id===editingProductId);
+      const p=getDB().products.find(x=>x.id===editingProductId);
       if(!p)throw new Error("El producto ya no existe");
-      Object.assign(p,{name,category,price,stock,description});
-      if(hasNewIcon)p.iconImageRef=await saveProductImage(iconImageFile,p.id,"icon");
+      const patch={name,category,price,stock,description};
+      if(hasNewIcon)patch.icon_image=await saveProductImage(iconImageFile,p.id,"icon");
       if(detailImageFiles.length){
         const refs=[];
         for(let i=0;i<detailImageFiles.length;i++)refs.push(await saveProductImage(detailImageFiles[i],p.id,`detail-${i+1}`));
-        p.detailImageRefs=refs;p.imageRef=refs[0]||null;
+        patch.detail_images=refs;patch.image=refs[0]||null;
       }
+      await apiPatchProduct(p.id,patch);
     }else{
-      const id=Date.now();
-      const iconImageRef=await saveProductImage(iconImageFile,id,"icon");
+      const folder=crypto.randomUUID();
+      const iconImageRef=hasNewIcon?await saveProductImage(iconImageFile,folder,"icon"):null;
       const detailImageRefs=[];
-      for(let i=0;i<detailImageFiles.length;i++)detailImageRefs.push(await saveProductImage(detailImageFiles[i],id,`detail-${i+1}`));
-      db.products.push({id,name,category,price,stock,active:true,icon:"📦",iconImageRef,imageRef:detailImageRefs[0]||null,detailImageRefs,description});
+      for(let i=0;i<detailImageFiles.length;i++)detailImageRefs.push(await saveProductImage(detailImageFiles[i],folder,`detail-${i+1}`));
+      await apiInsertProduct({name,category,price,stock,active:true,icon:"📦",iconImageRef,imageRef:detailImageRefs[0]||null,detailImageRefs,description});
     }
-    saveDB(db);
+    await refreshDB();
     resetImageForm();
     $("#adminModal").classList.add("hidden");
     editingProductId=null;

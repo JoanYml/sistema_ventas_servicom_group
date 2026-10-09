@@ -3,10 +3,8 @@ function imageRef(p,mode="detail"){
   return p.imageRef||p.image||p.iconImageRef||p.iconImage||null;
 }
 async function resolveImageRef(ref){
-  if(!ref)return null;
-  if(typeof ref!=="string"||!ref.startsWith("imgdb:"))return ref;
-  const blob=await getImageBlob(ref.slice(6));
-  return blob?URL.createObjectURL(blob):null;
+  if(typeof ref!=="string"||!ref||ref.startsWith("imgdb:"))return null;
+  return ref;
 }
 function productImage(p,cls="",mode="detail"){
   const ref=imageRef(p,mode);

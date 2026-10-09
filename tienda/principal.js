@@ -14,10 +14,19 @@ if($("#sortBy"))$("#sortBy").onchange=renderProducts;
 if($("#favBtn"))$("#favBtn").onclick=()=>{setOnlyFavorites(!onlyFavorites);renderProducts();document.getElementById("catalogo").scrollIntoView({behavior:"smooth"})};
 if($("#onlyFavBtn"))$("#onlyFavBtn").onclick=()=>{setOnlyFavorites(!onlyFavorites);renderProducts()};
 async function initStore(){
-  try{await migrateImagesToIndexedDB(DB_KEY)}catch(err){console.warn("Migración de imágenes:",err)}
+  initDB("tienda");
+  try{await refreshDB()}catch(err){console.error(err);toast(err.message||"No se pudo conectar con la base de datos")}
   loadCategories();updateFavCount();updateSearchClearVisibility();
   await renderProducts();await renderCart();await renderRecent();updateCount();
 }
+async function pollStore(){
+  try{
+    const changed=await refreshDB();
+    if(changed){loadCategories();renderProducts();renderRecent()}
+    syncCartWithCatalog();renderCart();updateCount();
+  }catch(err){console.warn("No se pudo actualizar el catálogo:",err)}
+}
 initStore();
 setInterval(()=>{syncCartWithCatalog();renderCart();updateCount()},1000);
-window.addEventListener("storage",e=>{if(e.key===DB_KEY){renderProducts();loadCategories();syncCartWithCatalog(true);renderCart();updateCount();renderRecent()}});
+setInterval(pollStore,10000);
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)pollStore()});

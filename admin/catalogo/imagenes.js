@@ -1,11 +1,14 @@
 const ICON_WIDTH=600, ICON_HEIGHT=400;
 const DETAIL_WIDTH=800, DETAIL_HEIGHT=1200;
 let detailImageFiles=[];
-async function saveProductImage(file,id,suffix=""){
-  if(!file)return null;
-  const key=`${id}_${suffix||"image"}`;
-  await saveImageBlob(key,file);
-  return `imgdb:${key}`;
+async function saveProductImage(file,folder,suffix=""){
+  if(!file||!file.size)return null;
+  const ext=file.type==="image/png"?"png":file.type==="image/webp"?"webp":"jpg";
+  const path=`${folder}/${suffix||"image"}-${Date.now()}.${ext}`;
+  const bucket=requireClient().storage.from(SUPABASE_BUCKET);
+  const {error}=await bucket.upload(path,file,{contentType:file.type,cacheControl:"31536000"});
+  if(error)throw error;
+  return bucket.getPublicUrl(path).data.publicUrl;
 }
 function validateImageDimensions(file,width,height){return new Promise((resolve,reject)=>{if(!file)return resolve(true);const url=URL.createObjectURL(file),img=new Image();img.onload=()=>{const ok=img.naturalWidth===width&&img.naturalHeight===height;URL.revokeObjectURL(url);if(ok)resolve(true);else reject(new Error(`La imagen debe medir exactamente ${width} × ${height} px.`))};img.onerror=()=>{URL.revokeObjectURL(url);reject(new Error("El archivo seleccionado no es una imagen válida."))};img.src=url})}
 function resetImageForm(){detailImageFiles=[];$("#productForm").reset();$("#iconFileName").textContent="Ningún archivo seleccionado";$("#detailFileName").textContent="Ninguna imagen seleccionada";$("#iconImagePreview").innerHTML="";$("#detailImagesPreview").innerHTML="";$("#productIconImage").value="";$("#productImages").value=""}

@@ -12,3 +12,4 @@ function toast(msg,actionLabel,actionFn){
   clearTimeout(toastTimer);
   toastTimer=setTimeout(()=>t.classList.remove("show"),2600);
 }
+function escapeHTML(v){return String(v==null?"":v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}

@@ -149,3 +149,7 @@ td.empty-note{text-align:center;padding:26px 0}
 .dark-mode .filter-field input,.dark-mode .filter-field select{background:#0f172a;color:#e5e7eb;border-color:#334155}
 @media(max-width:820px){.product-filters{grid-template-columns:1fr 1fr}.filter-field.filter-search{grid-column:1/-1}}
 @media(max-width:520px){.product-filters{grid-template-columns:1fr}}
+
+.login-card{width:min(420px,100%)}
+.login-error{margin:0;color:#c0392b;font-size:13px;font-weight:600}
+.dark-mode .login-error{color:#ff8a80}

@@ -1,6 +1,20 @@
 # Sistema de ventas — Servicom Group
 
-Demo web para catálogo, carrito, administración y pedidos. Funciona sin base de datos remota: los datos se guardan en el navegador (`localStorage` e `IndexedDB`).
+Web para catálogo, carrito, administración y pedidos, conectada a **Supabase** (PostgreSQL + Auth + Storage). Productos, pedidos e imágenes viven en la base de datos; en el navegador solo quedan el carrito, favoritos y preferencias.
+
+## Conectar con Supabase (una sola vez)
+
+1. **Crear las tablas:** Supabase → *SQL Editor* → *New query* → pega todo `supabase/schema.sql` → *Run*.
+2. **Crear el administrador:** *Authentication → Users → Add user → Create new user* (correo y contraseña, marca *Auto Confirm User*). Luego, en el *SQL Editor*:
+   ```sql
+   insert into public.admins (user_id)
+   select id from auth.users where email = 'TU_CORREO@ejemplo.com';
+   ```
+3. **Cerrar registros públicos:** *Authentication → Sign In / Providers* → desactiva *Allow new users to sign up*.
+4. **Pegar las llaves:** en `compartido/js/supabase-config.js` pon la *Project URL* y la clave **publishable** (o *anon*) de *Project Settings → API Keys*. Nunca pongas aquí la clave `secret` / `service_role`.
+5. Ejecuta `npm run dev` y abre `/admin/` para iniciar sesión.
+
+La seguridad no depende de esconder la clave publishable: la protegen las políticas RLS definidas en `schema.sql` (el público solo lee productos activos y compra mediante `create_order`; solo el administrador escribe).
 
 ## Cómo ejecutarlo
 
@@ -23,15 +37,17 @@ sistema_ventas_servicom_group/
 ├── package.json
 ├── README.md
 ├── index.html                       Redirige a la tienda
+├── supabase/
+│   └── schema.sql                   Tablas, seguridad (RLS), funciones y datos demo
 ├── scripts/
 │   └── servidor-dev.js              Servidor de desarrollo (npm run dev)
 ├── compartido/                      Código usado por la tienda y por el admin
 │   ├── css/base.css
 │   └── js/
-│       ├── datos.js
+│       ├── supabase-config.js       URL y clave publishable de tu proyecto
+│       ├── datos.js                 Conexión y acceso a Supabase
 │       ├── utilidades.js
-│       ├── tema.js
-│       └── imagenes-db.js
+│       └── tema.js
 ├── tienda/                          Todo lo que ve el cliente
 │   ├── index.html
 │   ├── css/tienda.css
@@ -60,22 +76,25 @@ Los scripts son clásicos (no módulos) y se cargan en el orden indicado al fina
 - Carrito con cantidades, eliminación individual y avisos de cambios de precio y stock.
 - Compra con datos de entrega, pago simulado y voucher.
 - Historial de pedidos con seguimiento y opción de comprar de nuevo.
-- Administración con menú lateral y tres pestañas: Dashboard, Categorías (productos agrupados por categoría) y Pedidos.
+- Administración con menú lateral y tres pestañas: Dashboard, Productos (listado completo con filtros por nombre, categoría y stock, y edición) y Pedidos.
 - Modo claro y oscuro.
 
 ## Almacenamiento
 
-| Dónde | Clave / base | Contenido |
+| Dónde | Clave / nombre | Contenido |
 |---|---|---|
-| `localStorage` | `servicom_group_db_v1` | Productos y pedidos |
+| Supabase · tabla `products` | — | Productos (precio, stock, estado, URLs de imágenes) |
+| Supabase · tabla `orders` | — | Pedidos con datos del cliente y detalle |
+| Supabase · tabla `admins` | — | Usuarios con permiso de administrador |
+| Supabase · Storage | bucket `product-images` | Iconos e imágenes de detalle |
+| `localStorage` | `servicom_my_orders` | "Llaves" de los pedidos del cliente en este navegador |
 | `localStorage` | `servicom_cart` | Carrito del cliente |
 | `localStorage` | `servicom_favorites` | IDs de productos favoritos |
 | `localStorage` | `servicom_recent` | IDs de productos vistos recientemente |
 | `localStorage` | `servicom_theme` | Modo claro u oscuro |
 | `sessionStorage` | `servicom_cart_notices` | Avisos del carrito de la sesión |
-| IndexedDB | `servicom_group_images_v1` | Imágenes como `Blob` |
 
-Las imágenes no se guardan en una carpeta del proyecto ni como Base64 en `localStorage`. El producto solo guarda referencias como `imgdb:123_icon`, lo que evita el error de cuota de `localStorage`. Si se encuentran imágenes antiguas en Base64, se migran solas a IndexedDB.
+Los pedidos se crean con la función SQL `create_order`, que recalcula precios y descuenta stock en el servidor. Cada cliente ve solo sus pedidos gracias a una llave (`access_token`) guardada en su navegador. El catálogo se refresca cada 10 s y el admin cada 15 s.
 
 ## Dimensiones de imágenes
 
@@ -101,10 +120,14 @@ Las imágenes no se guardan en una carpeta del proyecto ni como Base64 en `local
 
 | Elemento | Qué hace |
 |---|---|
-| `DB_KEY` | Clave de `localStorage` donde viven productos y pedidos. |
-| `defaultProducts` / `defaultDB` | Productos y base de datos de demostración iniciales. |
-| `getDB()` | Obtiene productos y pedidos desde `localStorage`; si no hay datos usa los de demostración. |
-| `saveDB(db)` | Guarda productos y pedidos en `localStorage`. |
+| `sb` | Cliente de Supabase (`null` si falta configurar `supabase-config.js`). |
+| `defaultProducts` | Productos de demostración (usados por "Restaurar datos demo"). |
+| `getDB()` | Devuelve productos y pedidos desde la memoria (rápido, síncrono). |
+| `initDB(scope)` / `refreshDB()` | Define si la página es `tienda` o `admin` y descarga los datos de Supabase; devuelve `true` si algo cambió. |
+| `apiInsertProduct` / `apiPatchProduct` / `apiDeleteProduct` | Crear, modificar y eliminar productos (solo administrador). |
+| `apiUpdateOrderStatus(id, status)` | Cambia el estado de un pedido (solo administrador). |
+| `apiCreateOrder(customer, items)` | Crea el pedido con la función `create_order` y recuerda su llave. |
+| `apiResetDemo()` | Borra pedidos y productos y recarga los 10 productos demo. |
 
 ## `compartido/js/utilidades.js`
 
@@ -112,6 +135,7 @@ Las imágenes no se guardan en una carpeta del proyecto ni como Base64 en `local
 |---|---|
 | `$(selector)` | Atajo de `document.querySelector`. |
 | `money(n)` | Da formato monetario peruano, por ejemplo `S/ 1899.90`. |
+| `escapeHTML(v)` | Escapa texto para insertarlo en HTML sin riesgo (datos de clientes, nombres). |
 | `toast(msg, actionLabel, actionFn)` | Muestra una notificación flotante, con botón de acción opcional (por ejemplo "Ver carrito"). |
 
 ## `compartido/js/tema.js`
@@ -121,16 +145,6 @@ Las imágenes no se guardan en una carpeta del proyecto ni como Base64 en `local
 | `THEME_KEY` | Clave donde se guarda la preferencia de tema. |
 | `applyTheme(theme)` | Aplica el modo claro u oscuro y actualiza el icono y las etiquetas del interruptor (☀ / ☾). |
 | `initTheme()` | Carga la preferencia guardada (o la del sistema) y conecta el interruptor. |
-
-## `compartido/js/imagenes-db.js`
-
-| Función | Qué hace |
-|---|---|
-| `openImageDB()` | Abre o crea la base IndexedDB `servicom_group_images_v1` y su almacén `images`. |
-| `saveImageBlob(key, blob)` | Guarda una imagen como `Blob`, sin convertirla a Base64. |
-| `getImageBlob(key)` | Recupera una imagen por su clave. |
-| `dataURLToBlob(dataURL)` | Convierte una imagen Base64 antigua en `Blob`. |
-| `migrateImagesToIndexedDB(dbKey)` | Mueve las imágenes antiguas de `localStorage` a IndexedDB y deja solo referencias en los productos. |
 
 ## `compartido/css/base.css`
 
@@ -145,9 +159,9 @@ Variables de diseño (colores, radios, sombras, tipografías), estilos base, bot
 | Función | Qué hace |
 |---|---|
 | `imageRef(p, mode)` | Elige la referencia de imagen del producto: `icon` para el catálogo o `detail` para el detalle. |
-| `resolveImageRef(ref)` | Convierte una referencia `imgdb:*` en una URL temporal del `Blob` guardado en IndexedDB. |
+| `resolveImageRef(ref)` | Devuelve la URL pública de la imagen guardada en Supabase Storage. |
 | `productImage(p, cls, mode)` | Genera la etiqueta `<img>` de un producto (o su emoji si no tiene imagen). |
-| `hydrateImages(root)` | Reemplaza las referencias `imgdb:*` de un contenedor por imágenes visibles. |
+| `hydrateImages(root)` | Carga las imágenes de un contenedor desde sus URLs. |
 
 ### `tienda/catalogo/catalogo.js`
 
@@ -235,9 +249,9 @@ Conecta los botones y campos de `tienda/index.html` con sus funciones (carrito, 
 
 | Función | Qué hace |
 |---|---|
-| `initStore()` | Migra imágenes antiguas, carga categorías, contadores, catálogo, carrito y recientes. |
+| `initStore()` | Carga los datos de Supabase, categorías, contadores, catálogo, carrito y recientes. |
 
-Además, cada segundo sincroniza el carrito con el catálogo para detectar cambios hechos desde el admin, y escucha el evento `storage` para reaccionar a cambios de otras pestañas.
+Además, cada segundo sincroniza el carrito con el catálogo en memoria, y cada 10 s (o al volver a la pestaña) vuelve a descargar el catálogo de Supabase para detectar cambios de precio y stock.
 
 ### `tienda/css/tienda.css`
 
@@ -256,7 +270,7 @@ Portada, catálogo y tarjetas, carrito lateral, detalle y carrusel, checkout y v
 | `renderRecentOrders()` | Lista los 5 pedidos más recientes con total y estado. |
 | `renderLowStock()` | Lista los productos con stock bajo o agotados. |
 | `renderCategorySummary()` | Muestra por categoría la cantidad de productos y unidades en stock con barras. |
-| `render()` | Actualiza todo el panel: dashboard, categorías, pedidos y contador del menú. |
+| `render()` | Actualiza todo el panel: dashboard, tabla de productos, pedidos y contador del menú. |
 
 También conecta el botón "Restaurar datos demo".
 
@@ -264,10 +278,10 @@ También conecta el botón "Restaurar datos demo".
 
 | Elemento | Qué hace |
 |---|---|
-| `ADMIN_VIEWS` | Pestañas disponibles: `dashboard`, `categorias` y `pedidos`. |
+| `ADMIN_VIEWS` | Pestañas disponibles: `dashboard`, `productos` y `pedidos` (el enlace antiguo `#categorias` redirige a `productos`). |
 | `showView(name)` | Muestra la pestaña elegida, marca el enlace activo del menú lateral y oculta las demás. |
 
-La pestaña activa se guarda en la URL (`#dashboard`, `#categorias`, `#pedidos`), así que se conserva al recargar.
+La pestaña activa se guarda en la URL (`#dashboard`, `#productos`, `#pedidos`), así que se conserva al recargar.
 
 ### `admin/pedidos/pedidos.js`
 
@@ -282,10 +296,13 @@ La pestaña activa se guarda en la URL (`#dashboard`, `#categorias`, `#pedidos`)
 
 | Función | Qué hace |
 |---|---|
-| `closedCategories` | Categorías que el administrador colapsó, para mantenerlas cerradas al refrescar. |
-| `productRowHTML(p)` | Construye la fila de un producto con precio, stock y estado editables. |
-| `renderCategoryGroups()` | Dibuja un grupo desplegable por categoría con su tabla de productos. |
-| `updateProduct(id, k, v)` | Modifica precio, stock o estado activo; la tienda detecta el cambio automáticamente. |
+| `normalizeText(v)` | Normaliza texto (minúsculas y sin tildes) para buscar. |
+| `productRowHTML(p)` | Construye la fila de un producto: categoría, precio, stock (con etiqueta "Bajo" o "Agotado"), estado, Editar y Eliminar. |
+| `loadFilterCategories()` | Llena el filtro de categorías conservando la selección actual. |
+| `getFilteredProducts()` | Devuelve los productos que cumplen nombre, categoría y stock (bajo = 10 o menos, alto = más de 10), ordenados por nombre. |
+| `renderProductsTable()` | Dibuja la tabla única de productos con el contador "Mostrando X de Y". |
+| `clearProductFilters()` | Limpia los tres filtros. |
+| `updateProduct(id, k, v)` | Modifica precio, stock o estado activo (valida números); la tienda detecta el cambio automáticamente. |
 | `deleteProduct(id)` | Elimina un producto previa confirmación. |
 
 ### `admin/catalogo/categorias.js`
@@ -305,7 +322,7 @@ La pestaña activa se guarda en la URL (`#dashboard`, `#categorias`, `#pedidos`)
 | `ICON_WIDTH`, `ICON_HEIGHT` | Dimensión exacta del icono (600 × 400). |
 | `DETAIL_WIDTH`, `DETAIL_HEIGHT` | Dimensión exacta de las imágenes de detalle (800 × 1200). |
 | `detailImageFiles` | Lista de imágenes de detalle elegidas antes de guardar. |
-| `saveProductImage(file, id, suffix)` | Guarda la imagen en IndexedDB y devuelve su referencia `imgdb:*`. |
+| `saveProductImage(file, folder, suffix)` | Sube la imagen al bucket `product-images` y devuelve su URL pública. |
 | `validateImageDimensions(file, w, h)` | Comprueba que la imagen tenga exactamente las dimensiones requeridas. |
 | `resetImageForm()` | Limpia el formulario y las vistas previas. |
 | `previewCard(src, name, onRemove, kind)` | Crea una vista previa con botón "×" para quitar la imagen. |
@@ -317,16 +334,19 @@ La pestaña activa se guarda en la URL (`#dashboard`, `#categorias`, `#pedidos`)
 
 | Evento | Qué hace |
 |---|---|
-| Clic en "+ Nuevo producto" | Abre el formulario, carga categorías y limpia las imágenes. |
-| Envío de `#productForm` | Valida datos e imágenes, guarda las imágenes en IndexedDB, crea el producto con sus referencias, actualiza el panel y confirma. |
+| `editingProductId` | Id del producto que se está editando (`null` cuando se crea uno nuevo). |
+| `setProductFormMode(editing)` | Cambia título, texto del botón y nota de imágenes del formulario según sea crear o editar. |
+| `editProduct(id)` | Abre el formulario con los datos del producto cargados. |
+| Clic en "+ Nuevo producto" | Abre el formulario vacío, carga categorías y limpia las imágenes. |
+| Envío de `#productForm` | Valida datos e imágenes y guarda: crea el producto, o actualiza el existente (si no se eligen imágenes nuevas conserva las actuales). |
 
 ### `admin/principal.js`
 
-Migra imágenes antiguas a IndexedDB, conecta el cierre de modales (`data-close`) y hace el primer `render()` del panel.
+Muestra el login (Supabase Auth), comprueba con `is_admin()` que el usuario sea administrador, carga los datos, refresca cada 15 s y gestiona "Cerrar sesión".
 
 ### `admin/css/admin.css`
 
-Menú lateral, títulos y tarjetas del panel, indicadores, tarjetas del dashboard, grupos por categoría, tablas, formulario de producto, selector de categoría, carga y vista previa de imágenes, ventana de nueva categoría, responsive y modo oscuro del admin.
+Menú lateral, títulos y tarjetas del panel, indicadores, tarjetas del dashboard, filtros y tabla de productos, tablas, formulario de producto, selector de categoría, carga y vista previa de imágenes, ventana de nueva categoría, responsive y modo oscuro del admin.
 
 ---
 
@@ -338,3 +358,4 @@ Menú lateral, títulos y tarjetas del panel, indicadores, tarjetas del dashboar
 - La función `render()` del admin se dividió en `renderStats`, `renderCategoryGroups` y `renderOrdersTable`, y `render()` las llama juntas.
 - Se eliminaron todos los comentarios del código; esta documentación reemplaza a `DOCUMENTACION.md`.
 - El resto de la lógica no se modificó.
+- La pestaña "Categorías" pasó a ser "Productos": en lugar de grupos por categoría, ahora hay una sola tabla con todos los productos, filtros por nombre, categoría y stock (bajo/alto) y un botón Editar que abre el formulario con los datos del producto. `renderCategoryGroups` se reemplazó por `renderProductsTable`.

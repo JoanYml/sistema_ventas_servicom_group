@@ -1,4 +1,4 @@
-function loadCategories(){const cats=[...new Set(getDB().products.map(p=>p.category))];$("#category").innerHTML='<option value="">Todas las categorías</option>'+cats.map(c=>`<option>${c}</option>`).join("")}
+function loadCategories(){const sel=$("#category"),cur=sel.value,cats=[...new Set(getDB().products.map(p=>p.category))];sel.innerHTML='<option value="">Todas las categorías</option>'+cats.map(c=>`<option>${escapeHTML(c)}</option>`).join("");sel.value=cats.includes(cur)?cur:""}
 function sortProducts(list,sortBy){
   const arr=[...list];
   if(sortBy==="price-asc")arr.sort((a,b)=>a.price-b.price);
