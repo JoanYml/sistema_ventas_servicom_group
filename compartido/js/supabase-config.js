@@ -1,2 +1,2 @@
-const SUPABASE_URL="https://TU-PROYECTO.supabase.co";
-const SUPABASE_KEY="TU_PUBLISHABLE_KEY_O_ANON_KEY";
+const SUPABASE_URL="https://ekuhjphttslbmasnqper.supabase.co";
+const SUPABASE_KEY="sb_publishable_W3FFOHIaevaRd_OMmjBgoA_lGIvKjha";
