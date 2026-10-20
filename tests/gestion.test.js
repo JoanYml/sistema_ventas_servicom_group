@@ -3,7 +3,7 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('nod
 const context=vm.createContext({Intl,Date});
 vm.runInContext(fs.readFileSync(require.resolve('../admin/panel/metricas.js'),'utf8'),context);
 vm.runInContext(fs.readFileSync(require.resolve('../admin/gestion/calculos.js'),'utf8'),context);
-const {financeCents,financeDecimal,financeSummary,financeDocumentStatus,financeFilterDocuments,financeFilterJournals,managementFilterEmployees,managementCSV}=context;
+const {financeCents,financeDecimal,financeSummary,financeTrialBalance,financeDocumentStatus,financeFilterDocuments,financeFilterJournals,managementFilterEmployees,managementCSV}=context;
 
 test('los importes usan céntimos exactos y rechazan fracciones adicionales y valores no finitos',()=>{
  assert.equal(financeCents('0.10')+financeCents('0.20'),30);
@@ -19,6 +19,20 @@ test('los reportes distinguen resultado del período, saldo inicial y resultado 
 test('las reversiones reducen el resultado en lugar de eliminar el historial',()=>{
  const summary=financeSummary({accounts:[{kind:'income',opening:-100,debit:100,credit:0,closing:0},{kind:'expense',opening:0,debit:0,credit:0,closing:0}]});
  assert.equal(summary.income,-10000);assert.equal(summary.result,-10000);assert.equal(summary.accumulated,0);
+});
+test('una venta de 1500 muestra caja deudora y ventas acreedoras sin cancelar sus totales',()=>{
+ const accounts=[{code:'1000',opening:0,debit:1500,credit:0,closing:1500},{code:'4000',opening:0,debit:0,credit:1500,closing:-1500}];
+ const trial=financeTrialBalance(accounts);
+ assert.deepEqual(Array.from(trial.rows[0].amounts),[0,0,150000,0,150000,0]);
+ assert.deepEqual(Array.from(trial.rows[1].amounts),[0,0,0,150000,0,150000]);
+ assert.deepEqual(Array.from(trial.totals),[0,0,150000,150000,150000,150000]);
+ assert.equal(accounts[1].closing,-1500);
+});
+test('el balance distingue el lado de cada saldo al cambiar de deudor a acreedor',()=>{
+ const trial=financeTrialBalance([{opening:'10.10',debit:0,credit:'20.20',closing:'-10.10'},{opening:'-10.10',debit:'20.20',credit:0,closing:'10.10'}]);
+ assert.deepEqual(Array.from(trial.totals),[1010,1010,2020,2020,1010,1010]);
+ assert(trial.rows.every(row=>row.amounts.every(value=>value>=0)));
+ assert.deepEqual(Array.from(financeTrialBalance([]).totals),[0,0,0,0,0,0]);
 });
 test('los documentos distinguen abonos, vencimientos, pago y anulación',()=>{
  const doc={status:'active',due_date:'2026-10-20',paid_amount:10,outstanding:90};

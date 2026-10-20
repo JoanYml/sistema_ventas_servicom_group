@@ -59,7 +59,7 @@ Todos los importes están en **PEN / soles**, con hasta dos decimales. Seleccion
 - **Ingreso / gasto:** registra ingresos cobrados o gastos pagados; elige caja/banco y la cuenta correspondiente. También permite transferir entre caja y banco dentro de la misma sucursal.
 - **Libro diario:** consulta los asientos, su detalle y su exportación CSV con líneas de Debe/Haber. Registra asientos manuales para apertura, costos, tributos, remuneraciones u otros ajustes. Debe y Haber deben cuadrar.
 - **Documentos:** registra cuentas por cobrar a clientes y por pagar a proveedores. Admite abonos parciales, controla el saldo, identifica vencimientos y conserva el historial de cobros/pagos. No admite pagar/cobrar por encima del saldo.
-- **Reportes:** balance de comprobación con saldos iniciales/movimientos/finales, estado de resultados del período y situación patrimonial a la fecha. Exportación de balance CSV e impresión de los tres reportes.
+- **Reportes:** balance de comprobación con saldos iniciales y finales separados en deudores/acreedores (importes positivos) y movimientos Debe/Haber, estado de resultados del período y situación patrimonial a la fecha. Exportación de balance CSV e impresión de los tres reportes.
 - **Cuentas:** plan inicial con caja, bancos, clientes, proveedores, capital, inventario al costo, tributos, remuneraciones, ingresos y gastos. Permite agregar cuentas con su clasificación.
 - **Períodos:** cierre mensual independiente por sucursal y reapertura con motivo. Un cierre bloquea nuevos asientos de ese mes; queda un registro de operaciones administrativas.
 

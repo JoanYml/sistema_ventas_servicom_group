@@ -58,6 +58,13 @@ const fs=require('node:fs'),path=require('node:path'),assert=require('node:asser
  await cash('income','70','Venta Nuevo Chimbote','4100',nc);
  await page.selectOption('#financeBranch',ch);await page.locator('#financeApply').click();await loaded('#financeFeedback','· Chimbote ·');
  await page.locator('[data-finance-tab=reports]').click();await loaded('#financeBalanceSheet','Diferencia de comprobación: S/ 0.00');await loaded('#financeIncomeStatement','500.00');
+ const salesRow=page.locator('#financeTrialBody tr').filter({hasText:'4000 · Venta de productos'});
+ assert.equal(await salesRow.locator('td').nth(4).innerText(),'S/ 0.00');assert.equal(await salesRow.locator('td').nth(5).innerText(),'S/ 500.00');
+ assert(!(await page.locator('#financeTrialBody').innerText()).includes('S/ -'));
+ const totals=await page.locator('#financeTrialFoot td').allTextContents();for(let index=0;index<6;index+=2)assert.equal(totals[index],totals[index+1]);
+ downloadPromise=page.waitForEvent('download');await page.locator('#financeReportExport').click();download=await downloadPromise;const balance=fs.readFileSync(await download.path(),'utf8');assert(balance.includes('Cierre acreedor'));assert(balance.includes('"4000","Venta de productos","Ingreso","0.00","0.00","0.00","500.00","0.00","500.00"'));assert(balance.includes('"Totales"'));
+ for(const width of [390,768,1440]){await page.setViewportSize({width,height:900});assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'balance overflow '+width)}
+ await page.evaluate(()=>scrollTo(0,0));
  await page.screenshot({path:'/tmp/servicom-contabilidad-reportes.png',fullPage:true});
  await page.locator('[data-finance-tab=periods]').click();await page.locator('#financePeriodOpen').click();await fill({branch:ch});await submit();await loaded('#financePeriodsBody','Chimbote');await cashClosed();
  async function cashClosed(){await page.locator('#financeNewCash').click();await fill({branch:ch,description:'Debe bloquearse',amount:'1',cash:'1000',counter:'4000'});await page.locator('#managementSubmit').click();await loaded('#managementModalFeedback','período está cerrado');assert.equal(await page.locator('#managementForm [name=description]').inputValue(),'Debe bloquearse');await page.locator('#managementClose').click()}

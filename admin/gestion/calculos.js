@@ -10,6 +10,14 @@ function financeCents(value){
 function financeDecimal(cents){return (cents<0?'-':'')+Math.floor(Math.abs(cents)/100)+'.'+String(Math.abs(cents)%100).padStart(2,'0')}
 function financeMoneyCents(cents){return 'S/ '+new Intl.NumberFormat('es-PE',{minimumFractionDigits:2,maximumFractionDigits:2}).format(cents===0?0:cents/100)}
 function financeMoney(value){return financeMoneyCents(financeCents(value))}
+function financeTrialBalance(accounts){
+ const rows=accounts.filter(a=>[a.opening,a.debit,a.credit,a.closing].some(value=>financeCents(value)!==0)).map(account=>{
+  const opening=financeCents(account.opening),closing=financeCents(account.closing);
+  return {account,amounts:[Math.max(opening,0),Math.max(0-opening,0),financeCents(account.debit),financeCents(account.credit),Math.max(closing,0),Math.max(0-closing,0)]};
+ });
+ const totals=rows.reduce((sum,row)=>sum.map((value,index)=>value+row.amounts[index]),[0,0,0,0,0,0]);
+ return {rows,totals};
+}
 function managementFilterEmployees(rows,filters){
  const query=managementNormalize(filters.search);
  return rows.filter(row=>(!filters.branch||row.branch_id===filters.branch)&&(!filters.status||row.status===filters.status)&&(!query||managementNormalize([row.employee_code,row.full_name,row.document_number,row.job_title,row.email].join(' ')).includes(query))).sort((a,b)=>a.full_name.localeCompare(b.full_name,'es'));
