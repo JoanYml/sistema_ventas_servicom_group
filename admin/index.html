@@ -1,12 +1,13 @@
 <!doctype html>
 <html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Administración — Servicom Group</title>
+<link rel="icon" type="image/png" href="../compartido/imagenes/logo-servicom.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../compartido/css/base.css">
 <link rel="stylesheet" href="css/admin.css">
 <link rel="stylesheet" href="gestion/gestion.css"></head>
-<body class="admin-body"><header class="topbar"><div class="brand"><span class="brand-mark">S</span><span>Servicom Group · Administración</span></div><nav><a href="../tienda/">← Volver a tienda</a><button id="logoutBtn" class="ghost-btn hidden" type="button">Cerrar sesión</button><button class="theme-switch" id="themeToggle" type="button" aria-label="Cambiar modo de color" title="Cambiar modo de color"><span class="theme-track"><span class="theme-thumb"><span class="theme-icon">☀</span></span></span></button></nav></header>
+<body class="admin-body"><header class="topbar"><div class="brand"><img class="brand-mark" src="../compartido/imagenes/logo-servicom.png" alt="" width="44" height="44"><span>Servicom Group · Administración</span></div><nav><a href="../tienda/">← Volver a tienda</a><button id="logoutBtn" class="ghost-btn hidden" type="button">Cerrar sesión</button><button class="theme-switch" id="themeToggle" type="button" aria-label="Cambiar modo de color" title="Cambiar modo de color"><span class="theme-track"><span class="theme-thumb"><span class="theme-icon">☀</span></span></span></button></nav></header>
 <p id="staffSetupNotice" class="staff-setup-notice hidden" role="status">Activa los roles ejecutando supabase/roles.sql en Supabase. Tu acceso de administrador se conserva.</p>
 <div class="admin-layout hidden">
 <aside class="sidebar"><div id="staffSession" class="staff-session hidden"><b id="staffRole"></b><span id="staffEmail"></span></div><p class="sidebar-label">Menú</p><nav class="sidebar-nav" aria-label="Secciones del panel">

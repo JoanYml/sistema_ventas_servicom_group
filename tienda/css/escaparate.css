@@ -201,7 +201,7 @@
 .store-faq details p{font-size:11px;line-height:1.9;color:var(--muted);margin:12px 20px 0 0}
 .store-footer{border-top:1px solid var(--line);display:grid;grid-template-columns:1fr auto;text-align:left;padding:36px max(24px,calc((100% - 1232px)/2)) 24px;background:var(--surface);color:var(--muted);gap:30px;align-items:center}
 .store-footer .brand{font-size:15px;justify-content:flex-start}
-.store-footer .brand-mark{width:30px;height:30px;font-size:14px;border-radius:10px}
+.store-footer .brand-mark{width:34px;height:34px}
 .store-footer>div>p{font-size:11px;line-height:1.8;margin:12px 0 0}
 .store-footer nav{display:flex;gap:22px;align-items:center;flex-wrap:wrap}
 .store-footer nav a,.store-footer nav button{border:0;background:transparent;padding:0;color:var(--muted);font-size:11px;text-decoration:none;line-height:1.6}
