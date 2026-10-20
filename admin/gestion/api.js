@@ -15,10 +15,13 @@ const managementEmployees=()=>managementRows('employees','*','full_name');
 const managementEmployeeHistory=id=>managementRows('employee_history','*','id','id',{key:'employee_id',value:id});
 const managementSaveEmployee=(id,data,version)=>managementRPC('management_save_employee',{p_id:id,p_data:data,p_version:version});
 const financeAccounts=()=>managementRows('finance_accounts','*','code','code');
-const financeJournals=()=>managementRows('finance_journals','id,entry_no,branch_id,entry_date,description,reference,reverse_of,reversed_by,created_by,created_at','entry_no');
+const financeJournals=(automatic=false)=>managementRows(automatic?'finance_journal_totals':'finance_journals','id,entry_no,branch_id,entry_date,description,reference,reverse_of,reversed_by,created_by,created_at'+(automatic?',source,order_id,total':''),'entry_no');
 const financeDocuments=()=>managementRows('finance_document_balances','*','due_date');
 const financePayments=()=>managementRows('finance_payments','id,document_id,amount,payment_date,cash_account,journal_id,created_at','payment_date');
 const financeLocks=()=>managementRows('finance_period_locks','*','month','branch_id');
-const financeGetReport=(branch,from,to)=>managementRPC('finance_report',{p_branch:branch||null,p_from:from,p_to:to});
+const financeGetReport=(branch,from,to)=>branch==='general'?managementRPC('finance_report_general',{p_from:from,p_to:to}):managementRPC('finance_report',{p_branch:branch||null,p_from:from,p_to:to});
+async function financeSalesStatus(){try{return await managementRPC('finance_sales_status',{})}catch(error){if(['PGRST202','42883'].includes(error?.code))return {installed:false};throw error}}
+const financeSalesRows=()=>managementRows('finance_order_sales','order_id,order_date,amount,historical,journal_id,status,error_message,posted_at','order_date','order_id');
+const financeGeneralLocks=()=>managementRows('finance_general_period_locks','month,closed_at','month','month');
 const financeGetEntry=id=>managementRPC('finance_get_entry',{p_id:id});
 async function financeAudit(){const {data,error}=await requireClient().from('finance_audit').select('id,action,entity_id,details,actor_id,created_at').order('created_at',{ascending:false}).order('id',{ascending:false}).range(0,99);if(error)throw error;return data}

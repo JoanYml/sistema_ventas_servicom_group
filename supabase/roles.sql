@@ -1,9 +1,9 @@
--- Ejecutar DESPUÉS de schema.sql, soporte.sql y gestion_empresarial.sql.
+-- Ejecutar DESPUÉS de schema.sql, soporte.sql y gestion_empresarial.sql; luego aplicar ventas_contabilidad.sql.
 -- Roles de aplicación: admin (dueño), employee (empleado), accountant (contable).
 begin;
 do $$ begin
   if to_regclass('public.employees') is null or to_regclass('public.support_conversations') is null then
-    raise exception 'Instala primero soporte.sql y gestion_empresarial.sql; ejecuta roles.sql al final.';
+    raise exception 'Instala primero soporte.sql y gestion_empresarial.sql; ejecuta roles.sql después de ambos.';
   end if;
 end $$;
 

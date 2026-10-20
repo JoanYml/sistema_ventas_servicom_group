@@ -231,7 +231,7 @@ select setval(pg_get_serial_sequence('public.products','id'),
 
 -- ============================================================
 --  ACCESO DEL EQUIPO:
---  ejecuta soporte.sql, gestion_empresarial.sql y roles.sql (al final).
+--  ejecuta soporte.sql, gestion_empresarial.sql, roles.sql y ventas_contabilidad.sql (al final).
 --  Después crea tu usuario en Authentication → Users y asigna al dueño:
 --
 --  select public.assign_staff_role('TU_CORREO@ejemplo.com', 'admin');

@@ -47,6 +47,15 @@ test('el diario combina sucursal, fechas y búsqueda sin alterar el orden origin
  assert.equal(financeFilterJournals(rows,{branch:'ch',from:'2026-10-01',to:'2026-10-01',search:'alquiler'}).length,1);
  assert.equal(financeFilterJournals(rows,{from:'2026-10-01',to:'2026-10-02'})[0].entry_no,2);assert.equal(rows[0].entry_no,1);
 });
+test('Ingreso general agrupa movimientos sin sucursal y el consolidado conserva todos',()=>{
+ const filters={from:'2026-10-01',to:'2026-10-31'},rows=[{entry_no:1,branch_id:null,entry_date:'2026-10-20',description:'Venta automática'},{entry_no:2,branch_id:'ch',entry_date:'2026-10-20',description:'Compra de sucursal'}];
+ assert.equal(financeFilterJournals(rows,{...filters,branch:'general'})[0].entry_no,1);
+ assert.equal(financeFilterJournals(rows,{...filters,branch:'general'}).length,1);
+ assert.equal(financeFilterJournals(rows,{...filters,branch:'ch'})[0].entry_no,2);
+ assert.equal(financeFilterJournals(rows,{...filters,branch:''}).length,2);
+ const documents=[{branch_id:null,status:'active',due_date:'2026-10-20',outstanding:50,paid_amount:0}];
+ assert.equal(financeFilterDocuments(documents,{branch:'general'}).length,1);assert.equal(financeFilterDocuments(documents,{branch:'ch'}).length,0);
+});
 test('los empleados se filtran por documento, nombre con tildes, sucursal y situación',()=>{
  const rows=[{full_name:'José Pérez',employee_code:'EMP-1',document_number:'12345678',job_title:'Ventas',branch_id:'ch',status:'active'},{full_name:'Ana Torres',employee_code:'EMP-2',document_number:'87654321',job_title:'Caja',branch_id:'nc',status:'leave'}];
  assert.equal(managementFilterEmployees(rows,{search:'JOSE PEREZ',branch:'ch',status:'active'}).length,1);

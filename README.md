@@ -4,7 +4,7 @@ Web para catálogo, carrito, administración y pedidos, conectada a **Supabase**
 
 ## Conectar con Supabase (una sola vez)
 
-1. **Crear las tablas:** Supabase → *SQL Editor* → *New query*. Ejecuta completos, en orden: `supabase/schema.sql`, `supabase/soporte.sql`, `supabase/gestion_empresarial.sql` y **`supabase/roles.sql` al final**.
+1. **Crear las tablas:** Supabase → *SQL Editor* → *New query*. Ejecuta completos, en orden: `supabase/schema.sql`, `supabase/soporte.sql`, `supabase/gestion_empresarial.sql`, `supabase/roles.sql` y **`supabase/ventas_contabilidad.sql` al final**.
 2. **Crear el administrador:** *Authentication → Users → Add user → Create new user* (correo y contraseña, marca *Auto Confirm User*). Luego, en el *SQL Editor*:
    ```sql
    select public.assign_staff_role('TU_CORREO@ejemplo.com', 'admin');
@@ -19,7 +19,7 @@ La seguridad no depende de esconder la clave publishable: la protegen las polít
 
 Se inicia sesión con Supabase Auth y el rol se guarda en `public.user_roles`: **admin** accede a todos los apartados; **employee**, sólo a Pedidos y Atención; **accountant**, sólo a Dashboard y Contabilidad. Los dueños existentes de `public.admins` conservan su acceso al ejecutar `roles.sql`. Una cuenta de Auth sin rol activo no accede al panel.
 
-Después de crear las cuentas, asigna sus roles desde SQL Editor con `public.assign_staff_role('correo@empresa.com', 'employee')` o `'accountant'`. Consulta la [guía de usuarios, permisos y revocación](docs/usuarios-y-roles.md). Si vuelves a ejecutar otros esquemas, ejecuta `roles.sql` al final para reinstalar los permisos actuales.
+Después de crear las cuentas, asigna sus roles desde SQL Editor con `public.assign_staff_role('correo@empresa.com', 'employee')` o `'accountant'`. Consulta la [guía de usuarios, permisos y revocación](docs/usuarios-y-roles.md). Si vuelves a ejecutar otros esquemas, ejecuta después `roles.sql` y `ventas_contabilidad.sql` para reinstalar los permisos y la integración actuales.
 
 El dashboard contable usa datos agregados, sin descargar datos personales ni llaves de pedidos. La web oculta las acciones restringidas y Supabase valida los permisos también ante solicitudes directas.
 
@@ -73,7 +73,7 @@ El menú administrativo incluye **Empleados** y **Contabilidad**. Actívalos eje
 
 Empleados permite crear y editar fichas, asignarlas a una sucursal, registrar traslados y situaciones, consultar historial, buscar y exportar CSV. Las fichas cargadas directamente en `public.employees` aparecen al abrir el apartado, actualizarlo o en su refresco de 15 segundos. La [guía de activación y carga de empleados](docs/gestion-empresarial.md) detalla columnas, SQL de ejemplo y plantilla CSV.
 
-Contabilidad incluye caja/bancos, ingresos/gastos, transferencias, cuentas por cobrar/pagar y abonos parciales, libro diario con partida doble y reversiones, plan de cuentas, cierre/reapertura mensual por sucursal, reportes y exportaciones. Usa soles y operaciones reales ingresadas por el dueño o el contable: los pedidos simulados no se contabilizan automáticamente. Es gestión interna; no emite comprobantes SUNAT ni calcula impuestos o planillas. Consulta la guía para registrar aperturas, evitar duplicar documentos y realizar correcciones.
+Contabilidad incluye caja/bancos, ingresos/gastos, transferencias, cuentas por cobrar/pagar y abonos parciales, libro diario con partida doble y reversiones, plan de cuentas, cierre/reapertura mensual por sucursal, reportes y exportaciones. Las ventas de Pedidos se contabilizan automáticamente en Ingreso general, sin sucursal; las compras se registran manualmente por el dueño o el contable. Activa este flujo ejecutando [supabase/ventas_contabilidad.sql](supabase/ventas_contabilidad.sql), después de los roles. Importa los pedidos existentes y los nuevos una sola vez, con fecha y total históricos. Consulta [ventas y compras](docs/ventas-y-compras.md). El checkout continúa con pagos simulados. Es gestión interna; no emite comprobantes SUNAT ni calcula impuestos o planillas. Consulta la guía para registrar aperturas, evitar duplicar documentos y realizar correcciones.
 
 ## Chat de la tienda y atención desde administración
 
@@ -83,7 +83,7 @@ Si el cliente necesita ayuda humana, puede revisar y enviar una consulta con su 
 
 ### Activación en Supabase
 
-Después de tener el esquema principal y el administrador configurados, ejecuta **todo [supabase/soporte.sql](supabase/soporte.sql)** en el SQL Editor del mismo proyecto Supabase. Es una migración aditiva e idempotente: no reemplaza productos, pedidos ni usuarios. No se necesita pegar claves privadas ni cambiar la configuración pública del frontend. Publicar el código en GitHub no ejecuta esta migración. Si ya usas los roles, vuelve a ejecutar `supabase/roles.sql` al terminar.
+Después de tener el esquema principal y el administrador configurados, ejecuta **todo [supabase/soporte.sql](supabase/soporte.sql)** en el SQL Editor del mismo proyecto Supabase. Es una migración aditiva e idempotente: no reemplaza productos, pedidos ni usuarios. No se necesita pegar claves privadas ni cambiar la configuración pública del frontend. Publicar el código en GitHub no ejecuta esta migración. Si ya usas los roles, vuelve a ejecutar `supabase/roles.sql` y `supabase/ventas_contabilidad.sql` al terminar.
 
 Sin esa migración, las preguntas frecuentes siguen funcionando y la derivación muestra un aviso de que la atención aún no está disponible. Administración indica cómo activar la bandeja; no se simula que una consulta fue enviada.
 

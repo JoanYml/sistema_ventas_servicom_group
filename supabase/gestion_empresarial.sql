@@ -1,6 +1,6 @@
 -- Servicom Group: sucursales, empleados y contabilidad de gestión.
 -- Ejecutar completo en Supabase → SQL Editor después de schema.sql.
--- Aditivo e idempotente. No convierte los pedidos simulados en cobros.
+-- Esquema base aditivo e idempotente. Después de roles.sql, aplicar ventas_contabilidad.sql para ingresos automáticos.
 begin;
 
 create table if not exists public.branches (

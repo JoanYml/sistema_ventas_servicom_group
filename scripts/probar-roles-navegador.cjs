@@ -5,7 +5,7 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),{randomUUID}=re
 (async()=>{
  const {db,users,branch}=await createRolesDB();let queue=Promise.resolve();
  const serial=fn=>{const result=queue.then(fn);queue=result.catch(()=>{});return result};
- const rpcArgs={get_my_staff_role:[],is_admin:[],get_staff_dashboard:['p_days'],support_admin_get:['p_id'],support_admin_reply:['p_id','p_message'],support_admin_set_status:['p_id','p_status'],management_save_employee:['p_id','p_data','p_version'],finance_record_cash:['p_branch','p_date','p_direction','p_amount','p_cash','p_counter','p_description','p_reference','p_request'],finance_report:['p_branch','p_from','p_to']};
+ const rpcArgs={finance_sales_status:[],get_my_staff_role:[],is_admin:[],get_staff_dashboard:['p_days'],support_admin_get:['p_id'],support_admin_reply:['p_id','p_message'],support_admin_set_status:['p_id','p_status'],management_save_employee:['p_id','p_data','p_version'],finance_record_cash:['p_branch','p_date','p_direction','p_amount','p_cash','p_counter','p_description','p_reference','p_request'],finance_report:['p_branch','p_from','p_to']};
  const tables=new Set(['products','orders','user_roles','employees','employee_history','branches','support_conversations','support_messages','finance_accounts','finance_journals','finance_document_balances','finance_payments','finance_period_locks','finance_audit']);
  const token=randomUUID(),conversation=(await db.query("select public.support_create_request($1,'Cliente de atención','Quisiera ayuda con mi compra') as data",[token])).rows[0].data;
  function sdk(user){

@@ -36,13 +36,14 @@ function financeSummary(report){
 function financeDocumentStatus(doc,today=managementToday()){
  if(doc.status==='voided')return 'voided';if(financeCents(doc.outstanding)===0)return 'paid';if(doc.due_date<today)return 'overdue';return financeCents(doc.paid_amount)>0?'partial':'pending';
 }
+function financeMatchesScope(branch,filter){return !filter||(filter==='general'?branch==null:branch===filter)}
 function financeFilterDocuments(rows,filters,today=managementToday()){
  const query=managementNormalize(filters.search);
- return rows.filter(row=>(!filters.branch||row.branch_id===filters.branch)&&(!filters.direction||row.direction===filters.direction)&&(!filters.status||(filters.status==='pending'?row.status==='active'&&financeCents(row.outstanding)>0:financeDocumentStatus(row,today)===filters.status))&&(!query||managementNormalize(row.counterparty+' '+row.reference).includes(query))).sort((a,b)=>a.due_date.localeCompare(b.due_date));
+ return rows.filter(row=>financeMatchesScope(row.branch_id,filters.branch)&&(!filters.direction||row.direction===filters.direction)&&(!filters.status||(filters.status==='pending'?row.status==='active'&&financeCents(row.outstanding)>0:financeDocumentStatus(row,today)===filters.status))&&(!query||managementNormalize(row.counterparty+' '+row.reference).includes(query))).sort((a,b)=>a.due_date.localeCompare(b.due_date));
 }
 function financeFilterJournals(rows,filters){
  const query=managementNormalize(filters.search);
- return rows.filter(row=>(!filters.branch||row.branch_id===filters.branch)&&row.entry_date>=filters.from&&row.entry_date<=filters.to&&(!query||managementNormalize([row.entry_no,row.description,row.reference].join(' ')).includes(query))).sort((a,b)=>b.entry_date.localeCompare(a.entry_date)||Number(b.entry_no)-Number(a.entry_no));
+ return rows.filter(row=>financeMatchesScope(row.branch_id,filters.branch)&&row.entry_date>=filters.from&&row.entry_date<=filters.to&&(!query||managementNormalize([row.entry_no,row.description,row.reference].join(' ')).includes(query))).sort((a,b)=>b.entry_date.localeCompare(a.entry_date)||Number(b.entry_no)-Number(a.entry_no));
 }
 function managementCSV(rows){const cell=value=>'"'+String(value??'').replace(/^[=+\-@\t\r]/,"'$&").replace(/"/g,'""')+'"';return '\uFEFF'+rows.map(row=>row.map(cell).join(',')).join('\r\n')}
 function managementDownload(filename,rows){const url=URL.createObjectURL(new Blob([managementCSV(rows)],{type:'text/csv;charset=utf-8;'})),link=document.createElement('a');link.href=url;link.download=filename;link.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}

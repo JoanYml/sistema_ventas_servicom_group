@@ -4,7 +4,7 @@
 
 1. Debe estar instalado el esquema original de `supabase/schema.sql` y tu usuario debe figurar en `public.admins`.
 2. Abre **Supabase → SQL Editor → New query**. Copia y ejecuta **todo** el archivo [gestion_empresarial.sql](../supabase/gestion_empresarial.sql). Incluye tablas, funciones, permisos, cuentas iniciales y las sucursales **Chimbote** y **Nuevo Chimbote**.
-3. Si utilizas los roles del equipo, ejecuta también `supabase/roles.sql` **al final**, después de instalar `soporte.sql`. Consulta [usuarios y roles](usuarios-y-roles.md).
+3. Si utilizas los roles del equipo, ejecuta también `supabase/roles.sql`, después de instalar `soporte.sql`. Consulta [usuarios y roles](usuarios-y-roles.md). Después ejecuta `supabase/ventas_contabilidad.sql` para activar el [Ingreso general automático y las compras manuales](ventas-y-compras.md).
 4. Inicia sesión en `/admin/` y abre **Empleados** o **Contabilidad**. Si ya estabas dentro, pulsa **Actualizar**.
 
 Este script no borra productos ni pedidos, no crea empleados ficticios y se puede volver a ejecutar. La web explica cómo activar el módulo si faltan sus tablas. No se ha aplicado automáticamente a tu base remota: ejecútalo en tu proyecto de Supabase.
@@ -76,7 +76,7 @@ Las operaciones se validan en PostgreSQL: permisos del apartado, importes finito
 
 ### Alcance
 
-Es contabilidad de gestión basada en las operaciones que registres. Los pedidos y pagos actuales de la tienda son simulados; **no generan automáticamente cobros, ingresos ni asientos**. El inventario del catálogo está valorado a precio de venta para el dashboard; la contabilidad sólo incorpora inventario y costos que registres a su costo real.
+Es contabilidad de gestión. Con `ventas_contabilidad.sql`, **todos los pedidos generan ingresos automáticos en Ingreso general, sin sucursal**, y las compras se registran manualmente. Los pagos actuales de la tienda siguen siendo simulados; estos asientos no acreditan cobros bancarios reales. El inventario del catálogo está valorado a precio de venta para el dashboard; la contabilidad sólo incorpora inventario y costos que registres a su costo real.
 
 No emite boletas/facturas SUNAT, no realiza conciliación bancaria automática y no calcula impuestos o planillas. Los documentos usan su importe total; para separar IGV u otros conceptos, utiliza asientos manuales con los importes contables correspondientes, sin duplicar operaciones. El cierre mensual bloquea el período; no genera automáticamente asientos de cierre anual o distribución del resultado.
 

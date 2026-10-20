@@ -1,6 +1,6 @@
 let businessManagementActive=false,businessManagementTimer=null,managementSubmitting=false,managementTrigger=null,managementModalVersion=0;
 let businessBranches=[];
-const businessBranchName=id=>businessBranches.find(b=>b.id===id)?.name||'Sucursal no disponible';
+const businessBranchName=id=>id==null||id==='general'?'Ingreso general':businessBranches.find(b=>b.id===id)?.name||'Sucursal no disponible';
 function businessBranchOptions(selected='',all=false){return (all?'<option value="">Todas las sucursales</option>':'<option value="">Seleccionar sucursal</option>')+businessBranches.filter(b=>b.active).map(b=>`<option value="${b.id}" ${b.id===selected?'selected':''}>${escapeHTML(b.name)}</option>`).join('')}
 function businessFillBranchSelect(id){const select=document.getElementById(id),value=select.value;select.innerHTML=businessBranchOptions(value,true);if(!businessBranches.some(b=>b.id===value))select.value=''}
 function managementField(label,name,type='text',value='',extra=''){return `<label>${label}<input name="${name}" type="${type}" value="${escapeHTML(value)}" ${extra}></label>`}

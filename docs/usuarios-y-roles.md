@@ -17,11 +17,12 @@ En **Supabase → SQL Editor**, ejecuta completo [supabase/roles.sql](../supabas
 1. `supabase/schema.sql`
 2. `supabase/soporte.sql`
 3. `supabase/gestion_empresarial.sql`
-4. **`supabase/roles.sql`, siempre al final.**
+4. `supabase/roles.sql`
+5. **`supabase/ventas_contabilidad.sql` al final**, para los ingresos automáticos y las compras manuales.
 
-Si ya tienes los tres primeros instalados, sólo necesitas ejecutar `roles.sql`. Es una migración transaccional y repetible: conserva los productos, pedidos, conversaciones, empleados y contabilidad. Copia los administradores existentes de `public.admins` a `user_roles` con rol `admin`, conservando el acceso del dueño. No crea cuentas de Auth, no agrega contraseñas y no asigna roles al resto de usuarios.
+Si ya tienes los tres primeros instalados, ejecuta `roles.sql` y después `ventas_contabilidad.sql`. Es una migración transaccional y repetible: conserva los productos, pedidos, conversaciones, empleados y contabilidad. Copia los administradores existentes de `public.admins` a `user_roles` con rol `admin`, conservando el acceso del dueño. No crea cuentas de Auth, no agrega contraseñas y no asigna roles al resto de usuarios.
 
-Si vuelves a ejecutar alguno de los tres esquemas anteriores, ejecuta nuevamente `roles.sql` al terminar: los esquemas anteriores contienen los permisos originales de administrador. La web admite al dueño con el esquema anterior y muestra un aviso de activación; los accesos de empleado y contable requieren esta migración.
+Si vuelves a ejecutar alguno de los tres esquemas anteriores, ejecuta nuevamente `roles.sql` y `ventas_contabilidad.sql` al terminar: los esquemas anteriores contienen los permisos originales de administrador. La web admite al dueño con el esquema anterior y muestra un aviso de activación; los accesos de empleado y contable requieren esta migración.
 
 ## 2. Crear las cuentas cuando estés listo
 

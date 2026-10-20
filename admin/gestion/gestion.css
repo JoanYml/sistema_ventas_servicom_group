@@ -38,6 +38,10 @@ button.business-stat:hover{transform:translateY(-2px);border-color:var(--brand)}
 .finance-tabs{display:flex;flex-wrap:wrap;gap:7px;padding:6px;border:1px solid var(--line);background:var(--surface);border-radius:13px;margin:20px 0}
 .finance-tabs button{background:transparent;border:0;border-radius:8px;padding:10px 13px;font:600 12px var(--font-body);color:var(--muted)}
 .finance-tabs button[aria-pressed=true]{background:var(--brand-soft);color:var(--brand-ink)}
+.finance-sales-status{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.finance-sales-status h2{font-size:16px}
+.finance-sales-status p{margin-bottom:0}
+#financePurchaseDueField[hidden],#financePurchaseCashField[hidden]{display:none}
 .finance-cash-strip{display:flex;flex-wrap:wrap;gap:12px 24px;font-size:11px;color:var(--muted);padding:4px 0 24px}
 .finance-cash-strip b{display:block;margin-top:5px;color:var(--ink);font:600 13px var(--font-mono)}
 .finance-cash-strip>span:last-child{flex-basis:100%;line-height:1.7}
