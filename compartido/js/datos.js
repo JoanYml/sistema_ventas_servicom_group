@@ -58,16 +58,28 @@ function rememberOrder(order){
 
 function initDB(scope){dbScope=scope==="admin"?"admin":"tienda"}
 
+async function readAllAdminRows(client,table,column,ascending=true){
+  const rows=[],pageSize=500;
+  for(let offset=0;;offset+=pageSize){
+    let query=client.from(table).select("*").order(column,{ascending});
+    if(column!=="id")query=query.order("id",{ascending});
+    const result=await query.range(offset,offset+pageSize-1);
+    if(result.error)throw result.error;
+    rows.push(...result.data);
+    if(result.data.length<pageSize)return rows;
+  }
+}
+
 async function refreshDB(){
   const c=requireClient();
-  const prod=await c.from("products").select("*").order("id");
+  const prod=dbScope==="admin"
+    ?{data:await readAllAdminRows(c,"products","id")}
+    :await c.from("products").select("*").order("id");
   if(prod.error)throw prod.error;
   const products=prod.data.map(rowToProduct);
   let orders=[];
   if(dbScope==="admin"){
-    const r=await c.from("orders").select("*").order("created_at",{ascending:false});
-    if(r.error)throw r.error;
-    orders=r.data.map(rowToOrder);
+    orders=(await readAllAdminRows(c,"orders","created_at",false)).map(rowToOrder);
   }else{
     const tokens=getMyOrders().map(x=>x.token);
     if(tokens.length){

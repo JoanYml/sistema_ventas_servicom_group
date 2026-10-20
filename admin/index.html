@@ -13,10 +13,28 @@
 <button type="button" class="sidebar-link" data-view="pedidos"><span class="sidebar-icon">🧾</span><span>Pedidos</span><span class="sidebar-badge" id="ordersBadge"></span></button>
 </nav></aside>
 <main class="admin-main">
-<section class="admin-view" data-panel="dashboard"><div class="admin-title"><div><p class="eyebrow">PANEL ADMINISTRATIVO</p><h1>Dashboard</h1><p>Resumen general de productos, ventas y pedidos.</p></div><button id="resetData" class="secondary-btn">Restaurar datos demo</button></div><div class="stats" id="stats"></div>
-<div class="dash-grid"><section class="admin-card"><div class="section-head compact"><div><h2>Pedidos recientes</h2><p>Los últimos 5 pedidos registrados.</p></div></div><div id="recentOrders"></div></section>
-<section class="admin-card"><div class="section-head compact"><div><h2>Stock bajo</h2><p>Productos con 10 unidades o menos.</p></div></div><div id="lowStock"></div></section>
-<section class="admin-card dash-wide"><div class="section-head compact"><div><h2>Productos por categoría</h2><p>Cantidad de productos y unidades en stock.</p></div></div><div id="categorySummary"></div></section></div></section>
+<section class="admin-view dashboard" data-panel="dashboard">
+  <div class="admin-title dashboard-title"><div><p class="eyebrow">CENTRO DE CONTROL</p><h1>Dashboard</h1><p>Una visión clara de tus ventas, pedidos e inventario.</p></div><button id="dashboardNewProduct" class="primary-btn" type="button">＋ Nuevo producto</button></div>
+  <div class="dashboard-toolbar">
+    <label class="dashboard-period" for="dashboardPeriod">Período de ventas<select id="dashboardPeriod"><option value="7">Últimos 7 días</option><option value="30" selected>Últimos 30 días</option><option value="90">Últimos 90 días</option></select></label>
+    <span id="dashboardSync" class="dashboard-sync" role="status">Esperando datos…</span>
+    <div class="dashboard-toolbar-actions"><button id="dashboardRefresh" class="secondary-btn" type="button">↻ Actualizar</button><button id="dashboardExport" class="secondary-btn" type="button">↓ Exportar CSV</button></div>
+  </div>
+  <p class="dashboard-caption">Ventas en soles · Fechas de Perú · Los pagos de esta tienda son simulados.</p>
+  <div class="stats dashboard-stats" id="stats"></div>
+  <div id="dashboardAlerts" class="dashboard-alerts"></div>
+  <div class="dashboard-charts">
+    <section class="admin-card sales-card"><div class="section-head compact"><div><p class="eyebrow">EVOLUCIÓN DEL NEGOCIO</p><h2>Ventas por día</h2><p id="salesRange"></p></div><span class="chart-key"><i></i> Importe de pedidos</span></div><div id="salesChart"></div></section>
+    <section class="admin-card"><div class="section-head compact"><div><h2>Estado de pedidos</h2><p>Distribución del período seleccionado.</p></div></div><div id="orderStatusChart"></div></section>
+  </div>
+  <div class="dash-grid">
+    <section class="admin-card"><div class="section-head compact"><div><h2>Últimos pedidos</h2><p>Los 5 más recientes del período.</p></div><a class="dashboard-link" href="#pedidos">Ver todos →</a></div><div id="recentOrders"></div></section>
+    <section class="admin-card"><div class="section-head compact"><div><h2>Productos más vendidos</h2><p>Clasificados por unidades en el período.</p></div></div><div id="topProducts"></div></section>
+    <section class="admin-card"><div class="section-head compact"><div><h2>Atención al inventario</h2><p>Productos con 10 unidades o menos.</p></div><button id="dashboardLowStock" class="dashboard-link" type="button">Gestionar →</button></div><div id="lowStock"></div></section>
+    <section class="admin-card"><div class="section-head compact"><div><h2>Inventario por categoría</h2><p>Unidades disponibles actualmente.</p></div><span class="dashboard-badge">Actual</span></div><div id="categorySummary"></div></section>
+  </div>
+  <div class="dashboard-footer"><span>Los indicadores de inventario y pedidos pendientes incluyen todo el historial.</span><details><summary>Herramientas de demostración</summary><p>Reemplaza productos y pedidos con los datos iniciales de prueba.</p><button id="resetData" class="secondary-btn" type="button">Restaurar datos demo</button></details></div>
+</section>
 <section class="admin-view hidden" data-panel="productos"><div class="admin-title"><div><p class="eyebrow">CATÁLOGO</p><h1>Productos</h1><p>Todos los productos del catálogo. Filtra por nombre, categoría o stock y edita cada producto.</p></div><button id="addProduct" class="primary-btn">+ Nuevo producto</button></div>
 <section class="admin-card"><div class="product-filters">
 <label class="filter-field filter-search">Buscar por nombre<input id="filterName" type="search" placeholder="Ej. Laptop" autocomplete="off"></label>
@@ -67,4 +85,4 @@
   </div>
 </div>
 <div id="loginModal" class="modal hidden"><div class="modal-card login-card"><p class="eyebrow">ACCESO ADMINISTRADOR</p><h2>Iniciar sesión</h2><form id="loginForm" class="form-grid"><label class="span-2">Correo<input name="email" type="email" required autocomplete="username"></label><label class="span-2">Contraseña<input name="password" type="password" required autocomplete="current-password"></label><p id="loginError" class="login-error span-2 hidden" role="alert"></p><button type="submit" id="loginBtn" class="primary-btn span-2">Entrar</button></form></div></div>
-<div id="toast" class="toast"></div><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="../compartido/js/supabase-config.js"></script><script src="../compartido/js/tema.js"></script><script src="../compartido/js/datos.js"></script><script src="../compartido/js/utilidades.js"></script><script src="panel/panel.js"></script><script src="pedidos/pedidos.js"></script><script src="catalogo/productos.js"></script><script src="catalogo/categorias.js"></script><script src="catalogo/imagenes.js"></script><script src="catalogo/formulario-producto.js"></script><script src="panel/navegacion.js"></script><script src="principal.js"></script></body></html>
+<div id="toast" class="toast"></div><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="../compartido/js/supabase-config.js"></script><script src="../compartido/js/tema.js"></script><script src="../compartido/js/datos.js"></script><script src="../compartido/js/utilidades.js"></script><script src="panel/metricas.js"></script><script src="panel/panel.js"></script><script src="pedidos/pedidos.js"></script><script src="catalogo/productos.js"></script><script src="catalogo/categorias.js"></script><script src="catalogo/imagenes.js"></script><script src="catalogo/formulario-producto.js"></script><script src="panel/navegacion.js"></script><script src="principal.js"></script></body></html>

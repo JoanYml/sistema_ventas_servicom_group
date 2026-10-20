@@ -11,18 +11,18 @@ async function hasAdminAccess(){
 }
 
 async function loadAdminData(){
-  try{await refreshDB()}catch(err){console.error(err);toast(err.message||"No se pudo cargar los datos")}
+  try{await refreshDB();dashboardDataUpdated()}catch(err){dashboardSyncError=true;console.error(err);toast("No se pudieron cargar los datos. Inténtalo de nuevo.")}
   render();
 }
 
 function adminBusy(){
   const a=document.activeElement;
-  return !$("#adminModal").classList.contains("hidden")||(a&&/^(INPUT|SELECT|TEXTAREA)$/.test(a.tagName)&&a.closest("main"));
+  return !$("#adminModal").classList.contains("hidden")||(a&&a.id!=="dashboardPeriod"&&/^(INPUT|SELECT|TEXTAREA)$/.test(a.tagName)&&a.closest("main"));
 }
 
 async function pollAdmin(){
   if(adminBusy())return;
-  try{if(await refreshDB())render()}catch(err){console.warn("No se pudo actualizar:",err)}
+  try{const changed=await refreshDB();dashboardDataUpdated();if(changed)render()}catch(err){dashboardSyncError=true;renderDashboardSync();console.warn("No se pudo actualizar:",err)}
 }
 
 async function showAdmin(){

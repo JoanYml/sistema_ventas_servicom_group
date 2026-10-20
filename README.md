@@ -30,6 +30,26 @@ npm run dev
 Si el puerto está ocupado: `npm run dev -- --port 3000`.
 El servidor recarga la página automáticamente cuando guardas un archivo.
 
+## Dashboard de administración
+
+El dashboard utiliza los productos y pedidos de Supabase y permite consultar:
+
+- Ventas, cantidad de pedidos y ticket promedio de los últimos 7, 30 o 90 días, comparados con el período anterior de igual duración. Las fechas se calculan en `America/Lima`.
+- Gráfico de ventas diarias, con importes y cantidad de pedidos en una tabla desplegable; gráfico circular de estados de pedidos; barras de unidades disponibles por categoría.
+- Los cinco pedidos más recientes y los cinco productos más vendidos del período. El ranking conserva los precios y nombres registrados en los pedidos, incluso si después cambia o se elimina el producto.
+- Unidades y valor del inventario al precio de venta actual, productos activos, productos agotados o con stock bajo y pedidos pendientes de todo el historial.
+- Accesos para crear productos, editar stock y consultar pedidos; actualización manual y exportación CSV de los pedidos del período. La restauración de datos demo permanece dentro de «Herramientas de demostración» y solicita confirmación.
+
+El inventario no cambia al seleccionar otro período. Los importes corresponden a pedidos con pagos simulados; no representan cobros bancarios verificados. Cuando no existe una base anterior para comparar, se indica sin inventar un porcentaje. La carga administrativa pagina los registros para evitar que el límite de respuesta de Supabase recorte los indicadores.
+
+### Pruebas
+
+```bash
+npm test
+```
+
+Las pruebas usan el runner integrado de Node.js, sin dependencias adicionales. Cubren fechas y límites de período, comparaciones, ranking con precios históricos, inventario, estados vacíos, exportación CSV y carga paginada.
+
 ## Estructura del proyecto
 
 ```text
