@@ -29,6 +29,7 @@ async function showAdmin(){
   $("#loginModal").classList.add("hidden");
   $("#logoutBtn").classList.remove("hidden");
   await loadAdminData();
+  startAdminSupport();
   clearInterval(adminPollTimer);
   adminPollTimer=setInterval(pollAdmin,15000);
 }
@@ -58,6 +59,7 @@ $("#loginForm").onsubmit=async e=>{
 
 $("#logoutBtn").onclick=async()=>{
   clearInterval(adminPollTimer);
+  stopAdminSupport();
   await requireClient().auth.signOut();
   location.reload();
 };

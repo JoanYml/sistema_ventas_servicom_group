@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../compartido/css/base.css">
 <link rel="stylesheet" href="css/tienda.css">
+<link rel="stylesheet" href="soporte/chat.css">
 </head>
 <body>
 <header class="topbar">
@@ -95,6 +96,20 @@
 <section id="ordersModal" class="modal hidden"><div class="modal-card wide"><button class="close-btn modal-close" data-close="ordersModal">×</button><p class="eyebrow">SEGUIMIENTO</p><h2>Mis pedidos</h2><div id="ordersList"></div></div></section>
 <section id="checkoutModal" class="modal hidden"><div class="modal-card checkout-card"><button class="close-btn modal-close" data-close="checkoutModal">×</button><div id="checkoutContent"></div></div></section>
 <div id="toast" class="toast"></div>
+<div id="supportWidget" class="support-widget">
+  <section id="supportPanel" class="support-panel" aria-labelledby="supportTitle" hidden>
+    <header class="support-header"><span class="support-avatar" aria-hidden="true">S</span><div><h2 id="supportTitle">Asistente Servicom</h2><p id="supportSubtitle">Preguntas frecuentes</p></div><button id="supportClose" type="button" aria-label="Cerrar chat">×</button></header>
+    <div class="support-mode-bar"><span id="supportModeLabel">Asistente automático</span><button id="supportModeSwitch" type="button">Hablar con el equipo</button></div>
+    <div id="supportMessages" class="support-messages" role="log" aria-live="polite" aria-relevant="additions text" aria-label="Mensajes de atención"></div>
+    <div id="supportSuggestions" class="support-suggestions" aria-label="Preguntas frecuentes"><button type="button" data-support-question="¿Cómo comprar?">Cómo comprar</button><button type="button" data-support-question="Envíos">Envíos</button><button type="button" data-support-question="Medios de pago">Pagos</button><button type="button" data-support-question="Mis pedidos">Mis pedidos</button><button type="button" data-support-question="Stock y productos">Productos</button></div>
+    <form id="supportHandoffForm" class="support-handoff" hidden><h3>Consulta para el equipo</h3><p>El encargado responderá aquí. Solo se enviará el mensaje que revises a continuación.</p><label>Tu nombre<input id="supportName" maxlength="80" autocomplete="given-name" required></label><label>¿En qué podemos ayudarte?<textarea id="supportRequest" rows="3" maxlength="1000" required></textarea></label><button id="supportRequestSend" class="primary-btn" type="submit">Enviar consulta</button><button id="supportRequestCancel" class="support-text-btn" type="button">Volver al asistente</button></form>
+    <p id="supportFeedback" class="support-feedback" role="status"></p>
+    <form id="supportMessageForm" class="support-composer"><label class="sr-only" for="supportInput">Escribe tu consulta</label><input id="supportInput" type="text" maxlength="1000" placeholder="Escribe tu pregunta…" autocomplete="off"><button id="supportSend" type="submit" aria-label="Enviar mensaje">➤</button></form>
+    <p class="support-footer">Consultas al equipo: vuelve desde este navegador para ver las respuestas.</p>
+  </section>
+  <button id="supportToggle" class="support-toggle" type="button" aria-expanded="false" aria-controls="supportPanel"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 11.5a8 8 0 0 1-8 8H5l-4 3 1.5-6A8 8 0 1 1 20 11.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M6 10h8M6 14h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span>¿Necesitas ayuda?</span><b id="supportUnread" class="support-unread" hidden aria-label="Respuesta del equipo">1</b></button>
+</div>
 <footer>Servicom Group · Demo local · El pago y voucher son simulados.</footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="../compartido/js/supabase-config.js"></script><script src="../compartido/js/tema.js"></script><script src="../compartido/js/datos.js"></script><script src="../compartido/js/utilidades.js"></script><script src="favoritos/favoritos.js"></script><script src="recientes/recientes.js"></script><script src="carrito/sincronizacion.js"></script><script src="carrito/carrito.js"></script><script src="catalogo/imagenes.js"></script><script src="catalogo/catalogo.js"></script><script src="catalogo/detalle.js"></script><script src="compra/checkout.js"></script><script src="pedidos/pedidos.js"></script><script src="principal.js"></script>
+<script src="../compartido/js/soporte-api.js"></script><script src="soporte/respuestas.js"></script><script src="soporte/chat.js"></script>
 </body></html>

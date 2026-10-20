@@ -60,6 +60,35 @@ Para cambiar el seguimiento, selecciona el nuevo estado y pulsa «Guardar estado
 
 `npm test` también cubre búsqueda, filtros de pedidos, límites de fechas, orden, paginación, contadores y la actualización condicionada al estado anterior.
 
+## Chat de la tienda y atención desde administración
+
+La tienda incluye un chat desplegable en la esquina inferior derecha. El asistente responde preguntas frecuentes sobre compras, envíos, pago simulado, productos y seguimiento; funciona con reglas locales, sin servicios de IA ni claves adicionales. Los precios y el stock se consultan en el catálogo disponible. El bot sólo reconoce los pedidos ya autorizados para ese navegador.
+
+Si el cliente necesita ayuda humana, puede revisar y enviar una consulta con su nombre. La consulta llega a **Administración → Atención**, donde un administrador puede responder, filtrar consultas abiertas, pendientes o cerradas, y cerrar o reabrir conversaciones. Las respuestas aparecen en el mismo chat, con actualización cada 8 segundos mientras la página está visible. La bandeja conserva los borradores de respuesta durante las actualizaciones.
+
+### Activación en Supabase
+
+Después de tener el esquema principal y el administrador configurados, ejecuta **todo [supabase/soporte.sql](supabase/soporte.sql)** en el SQL Editor del mismo proyecto Supabase. Es una migración aditiva e idempotente: no reemplaza productos, pedidos ni usuarios. No se necesita pegar claves privadas ni cambiar la configuración pública del frontend. Publicar el código en GitHub no ejecuta esta migración.
+
+Sin esa migración, las preguntas frecuentes siguen funcionando y la derivación muestra un aviso de que la atención aún no está disponible. Administración indica cómo activar la bandeja; no se simula que una consulta fue enviada.
+
+Las conversaciones humanas se almacenan en Supabase. El navegador conserva únicamente su llave privada en `servicom_support_token`, por lo que el cliente debe volver desde el mismo navegador para consultar las respuestas. No se envía automáticamente el historial de preguntas al bot. Borrar los datos del sitio elimina el acceso del cliente a su conversación; no elimina los mensajes de Supabase. No compartas esa llave. La bandeja no comprueba que haya un encargado conectado ni promete una respuesta inmediata.
+
+Las tablas tienen RLS y los visitantes no pueden leerlas directamente. Las funciones públicas sólo permiten acceder a la conversación correspondiente a la llave privada; las respuestas y cambios de estado requieren ser administrador. Cada mensaje admite hasta 1000 caracteres y cada conversación hasta 200 mensajes.
+
+### Pruebas de atención
+
+`npm test` incluye las reglas del bot, aislamiento de pedidos, errores y paginación de la bandeja. Para validar también el SQL y el recorrido completo de navegador con una base PostgreSQL local de prueba:
+
+```bash
+npm install --prefix /tmp/servicom-support-db --cache /tmp/servicom-npm-cache --no-save --no-package-lock @electric-sql/pglite@0.5.10
+SERVICOM_PGLITE_PATH=/tmp/servicom-support-db/node_modules/@electric-sql/pglite node scripts/probar-soporte-sql.cjs
+# Con npm run dev ya activo, Playwright disponible y Chromium instalado:
+SERVICOM_PGLITE_PATH=/tmp/servicom-support-db/node_modules/@electric-sql/pglite node scripts/probar-soporte-navegador.cjs
+```
+
+La prueba de navegador usa dos sesiones aisladas y una base PGlite temporal. Intercepta las peticiones a Supabase y no modifica la base remota. Si Playwright o Chromium están en otra ubicación, se pueden indicar con `SERVICOM_PLAYWRIGHT_PATH` y `SERVICOM_CHROMIUM_PATH`.
+
 ## Estructura del proyecto
 
 ```text
@@ -308,7 +337,7 @@ También conecta el botón "Restaurar datos demo".
 
 | Elemento | Qué hace |
 |---|---|
-| `ADMIN_VIEWS` | Pestañas disponibles: `dashboard`, `productos` y `pedidos` (el enlace antiguo `#categorias` redirige a `productos`). |
+| `ADMIN_VIEWS` | Pestañas disponibles: `dashboard`, `productos`, `pedidos` y `atencion` (el enlace antiguo `#categorias` redirige a `productos`). |
 | `showView(name)` | Muestra la pestaña elegida, marca el enlace activo del menú lateral y oculta las demás. |
 
 La pestaña activa se guarda en la URL (`#dashboard`, `#productos`, `#pedidos`), así que se conserva al recargar.

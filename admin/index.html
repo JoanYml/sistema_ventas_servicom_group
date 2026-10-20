@@ -11,6 +11,7 @@
 <button type="button" class="sidebar-link active" data-view="dashboard"><span class="sidebar-icon">▦</span><span>Dashboard</span></button>
 <button type="button" class="sidebar-link" data-view="productos"><span class="sidebar-icon">📦</span><span>Productos</span></button>
 <button type="button" class="sidebar-link" data-view="pedidos"><span class="sidebar-icon">🧾</span><span>Pedidos</span><span class="sidebar-badge" id="ordersBadge"></span></button>
+<button type="button" class="sidebar-link" data-view="atencion"><span class="sidebar-icon">◉</span><span>Atención</span><span class="sidebar-badge" id="supportInboxBadge"></span></button>
 </nav></aside>
 <main class="admin-main">
 <section class="admin-view dashboard" data-panel="dashboard">
@@ -62,6 +63,16 @@
     <p id="ordersNotice" class="orders-caption" role="status"></p>
   </section>
 </section>
+<section class="admin-view hidden support-admin" data-panel="atencion">
+  <div class="admin-title"><div><p class="eyebrow">ATENCIÓN AL CLIENTE</p><h1>Consultas de la tienda</h1><p>Responde a las personas que solicitaron ayuda desde el chat.</p></div><button id="supportInboxRefresh" class="secondary-btn" type="button">↻ Actualizar</button></div>
+  <p id="supportInboxFeedback" class="orders-caption" role="status"></p>
+  <div class="support-inbox-layout">
+    <section class="admin-card support-inbox-list"><label class="filter-field">Buscar consulta<input id="supportInboxSearch" type="search" placeholder="Nombre o mensaje…" autocomplete="off"></label><label class="filter-field">Mostrar<select id="supportInboxFilter"><option value="open">Abiertas</option><option value="pending">Por responder</option><option value="closed">Cerradas</option><option value="all">Todas</option></select></label><p id="supportInboxCount" class="orders-caption"></p><div id="supportInboxItems" class="support-inbox-items"></div></section>
+    <section class="admin-card support-admin-thread"><div id="supportThreadEmpty" class="dashboard-empty"><span aria-hidden="true">◉</span><b>Selecciona una consulta</b><p>Las respuestas que envíes aparecerán en el chat del cliente.</p></div>
+      <div id="supportThread" hidden><header class="support-thread-heading"><div><h2 id="supportThreadTitle"></h2><p id="supportThreadStatus" class="orders-caption"></p></div><button id="supportThreadToggle" class="secondary-btn" type="button">Cerrar consulta</button></header><div id="supportThreadMessages" class="support-thread-messages" role="log" aria-live="polite" aria-label="Mensajes de la consulta"></div><form id="supportReplyForm"><label class="filter-field" for="supportReply">Tu respuesta<textarea id="supportReply" rows="3" maxlength="1000" placeholder="Escribe una respuesta al cliente…" required></textarea></label><button id="supportReplySend" class="primary-btn" type="submit">Enviar respuesta</button></form><p id="supportReplyFeedback" class="orders-caption" role="status"></p></div>
+    </section>
+  </div>
+</section>
 </main></div>
 <div id="orderDetailModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="orderDetailTitle" tabindex="-1">
   <div class="modal-card order-modal-card">
@@ -112,4 +123,4 @@
   </div>
 </div>
 <div id="loginModal" class="modal hidden"><div class="modal-card login-card"><p class="eyebrow">ACCESO ADMINISTRADOR</p><h2>Iniciar sesión</h2><form id="loginForm" class="form-grid"><label class="span-2">Correo<input name="email" type="email" required autocomplete="username"></label><label class="span-2">Contraseña<input name="password" type="password" required autocomplete="current-password"></label><p id="loginError" class="login-error span-2 hidden" role="alert"></p><button type="submit" id="loginBtn" class="primary-btn span-2">Entrar</button></form></div></div>
-<div id="toast" class="toast"></div><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="../compartido/js/supabase-config.js"></script><script src="../compartido/js/tema.js"></script><script src="../compartido/js/datos.js"></script><script src="../compartido/js/utilidades.js"></script><script src="panel/metricas.js"></script><script src="panel/panel.js"></script><script src="pedidos/consultas.js"></script><script src="pedidos/pedidos.js"></script><script src="catalogo/productos.js"></script><script src="catalogo/categorias.js"></script><script src="catalogo/imagenes.js"></script><script src="catalogo/formulario-producto.js"></script><script src="panel/navegacion.js"></script><script src="principal.js"></script></body></html>
+<div id="toast" class="toast"></div><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="../compartido/js/supabase-config.js"></script><script src="../compartido/js/tema.js"></script><script src="../compartido/js/datos.js"></script><script src="../compartido/js/utilidades.js"></script><script src="../compartido/js/soporte-api.js"></script><script src="panel/metricas.js"></script><script src="panel/panel.js"></script><script src="pedidos/consultas.js"></script><script src="pedidos/pedidos.js"></script><script src="catalogo/productos.js"></script><script src="catalogo/categorias.js"></script><script src="catalogo/imagenes.js"></script><script src="catalogo/formulario-producto.js"></script><script src="soporte/bandeja.js"></script><script src="panel/navegacion.js"></script><script src="principal.js"></script></body></html>

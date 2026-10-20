@@ -1,0 +1,57 @@
+.support-widget{position:fixed;right:24px;bottom:calc(20px + env(safe-area-inset-bottom,0px) + var(--support-keyboard-offset,0px));z-index:25;--support-accent:#344bc4}
+.support-widget[hidden],.support-panel[hidden],.support-widget [hidden]{display:none!important}
+.support-toggle{position:relative;display:flex;align-items:center;gap:10px;min-height:56px;padding:15px 20px;border:0;border-radius:99px;background:var(--brand);color:#fff;box-shadow:0 10px 30px rgba(40,57,173,.3);font-size:13px;font-weight:700;transition:transform .15s,background .15s}
+.support-toggle:hover{background:var(--brand-ink);transform:translateY(-2px)}
+.support-toggle svg{width:25px;height:25px;overflow:visible}
+.support-unread{position:absolute;right:-2px;top:-3px;display:grid;place-items:center;width:23px;height:23px;border-radius:50%;background:#d9364a;color:#fff;border:2px solid var(--surface);font-size:11px}
+.support-panel{position:absolute;bottom:74px;right:0;width:390px;height:min(620px,calc(var(--support-viewport-height,100dvh) - 115px));display:flex;flex-direction:column;overflow:hidden;background:var(--surface);color:var(--text);border:1px solid var(--line);border-radius:22px;box-shadow:0 20px 70px rgba(5,15,40,.22)}
+.support-header{display:flex;align-items:center;gap:11px;background:linear-gradient(120deg,#293ecc,#196f86);color:#fff;padding:20px 18px}
+.support-avatar{display:grid;place-items:center;width:37px;height:37px;background:#ffffff24;border:1px solid #ffffff38;border-radius:12px;font-family:var(--font-display);font-size:20px;font-weight:700;flex:none}
+.support-header>div{flex:1}
+.support-header h2{font-size:15px;margin:0 0 5px;color:#fff}
+.support-header p{font-size:10px;margin:0;color:#e1eaff}
+.support-header>button{border:0;border-radius:50%;width:30px;height:30px;background:#ffffff1f;color:#fff;font-size:22px;line-height:1}
+.support-header>button:hover{background:#ffffff38}
+.support-mode-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:11px 16px;border-bottom:1px solid var(--line-soft);font-size:10px;color:var(--muted)}
+.support-mode-bar button,.support-text-btn{border:0;background:transparent;color:var(--support-accent);font-weight:700;font-size:10px;padding:4px;cursor:pointer}
+.support-mode-bar button:hover,.support-text-btn:hover{text-decoration:underline}
+.support-messages{flex:1;min-height:90px;overflow:auto;overscroll-behavior:contain;padding:18px 15px;background:var(--surface-2)}
+.support-message{max-width:94%;margin:0 0 15px;padding:12px 13px;background:var(--surface);border:1px solid var(--line-soft);border-radius:4px 15px 15px;font-size:12px;line-height:1.7;overflow-wrap:anywhere}
+.support-message>small{display:block;margin-bottom:5px;color:var(--muted);font-size:9px;font-weight:700}
+.support-message>p{margin:0;white-space:pre-wrap}
+.support-message-customer{margin-left:auto;background:#e9edff;border-color:#dce3ff;border-radius:15px 4px 15px 15px;color:#1f315e}
+.support-message-customer>small{color:#465989}
+.support-message-admin{border-left:3px solid var(--signal)}
+.support-message-actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
+.support-message-actions button,.support-suggestions button{background:var(--surface);color:var(--support-accent);border:1px solid var(--line);border-radius:9px;padding:7px 9px;font-size:10px;font-weight:650;line-height:1.5;text-align:left}
+.support-message-actions button:hover,.support-suggestions button:hover{border-color:var(--support-accent);background:var(--surface-2)}
+.support-suggestions{display:flex;flex-wrap:wrap;gap:6px;padding:10px 14px;border-top:1px solid var(--line-soft)}
+.support-suggestions button{border-radius:99px;font-size:9px;padding:5px 9px}
+.support-feedback{color:var(--muted);font-size:10px;line-height:1.6;margin:0;padding:0 15px;max-height:65px;overflow:auto}
+.support-feedback:empty{display:none}
+.support-composer{display:flex;align-items:center;gap:8px;padding:12px 14px 8px}
+.support-composer input{min-width:0;flex:1;border:1px solid var(--line);background:var(--surface-2);border-radius:11px;padding:12px;color:var(--text);font-size:12px}
+.support-composer>button{width:39px;height:39px;display:grid;place-items:center;background:var(--brand);border:0;border-radius:11px;color:#fff;font-size:17px;flex:none}
+.support-composer input:focus,.support-handoff input:focus,.support-handoff textarea:focus{outline:2px solid var(--support-accent);outline-offset:1px}
+.support-footer{font-size:8.5px;text-align:center;color:var(--muted);line-height:1.5;margin:0;padding:2px 12px 11px}
+.support-handoff{padding:15px;overflow:auto;max-height:70%;border-top:1px solid var(--line-soft)}
+.support-handoff h3{font-size:14px;margin:0 0 6px;color:var(--ink)}
+.support-handoff>p{font-size:10px;line-height:1.6;color:var(--muted);margin:0 0 12px}
+.support-handoff label{display:flex;flex-direction:column;gap:6px;margin:10px 0;font-size:11px;font-weight:650}
+.support-handoff input,.support-handoff textarea{width:100%;background:var(--surface-2);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:9px;font-size:12px;resize:vertical}
+.support-handoff .primary-btn{font-size:11px;padding:10px 12px;width:100%;margin:3px 0 6px}
+.support-handoff .support-text-btn{display:block;margin:auto}
+.support-widget button:disabled{opacity:.5;cursor:not-allowed}
+.support-widget .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.dark-mode .support-widget{--support-accent:#a9baff}
+.dark-mode .support-message-customer{background:#1c2b52;border-color:#2c4072;color:#e3eaff}
+.dark-mode .support-message-customer>small{color:#b8c8f9}
+@media(max-width:600px){
+ .support-widget{right:14px;bottom:calc(14px + env(safe-area-inset-bottom,0px) + var(--support-keyboard-offset,0px))}
+ .support-toggle{width:54px;height:54px;min-height:54px;justify-content:center;padding:0}
+ .support-toggle>span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+ .support-panel{width:min(390px,calc(100vw - 28px));bottom:68px;max-height:calc(var(--support-viewport-height,100dvh) - 100px);border-radius:18px}
+ .support-header{padding:15px}.support-composer input,.support-handoff input,.support-handoff textarea{font-size:16px}
+}
+@media(prefers-reduced-motion:reduce){.support-toggle{transition:none}}
+@media print{.support-widget{display:none!important}}
