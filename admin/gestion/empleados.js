@@ -1,14 +1,14 @@
 let employeeRows=[],employeePage=1,employeeLoading=false,employeeLoadVersion=0,employeesReady=false;
 function employeeFilters(){return {search:$('#employeeSearch').value,branch:$('#employeeBranch').value,status:$('#employeeStatus').value}}
 async function loadEmployees(force=false){
- if(!businessManagementActive||(employeeLoading&&!force))return false;
+ if(!staffCan('empleados')||!businessManagementActive||(employeeLoading&&!force))return false;
  employeeLoading=true;const version=++employeeLoadVersion;$('#employeesFeedback').textContent='Cargando empleados…';
  try{const [branches,rows]=await Promise.all([managementBranches(),managementEmployees()]);if(version!==employeeLoadVersion||!businessManagementActive)return false;businessBranches=branches;employeeRows=rows;employeesReady=true;businessFillBranchSelect('employeeBranch');renderEmployees();$('#employeesFeedback').textContent='Información de Supabase · Actualización automática cada 15 segundos.';$('#employeesNew').disabled=!branches.some(b=>b.active);return true}
  catch(error){if(version===employeeLoadVersion){$('#employeesFeedback').textContent=managementError(error)+(employeesReady?' Se conserva el último listado cargado.':'');if(!employeesReady){$('#employeeTable').innerHTML='<tr><td colspan="5">Activa el módulo para cargar las fichas de los empleados.</td></tr>';$('#employeesNew').disabled=true}}return false}
  finally{if(version===employeeLoadVersion)employeeLoading=false}
 }
 function renderEmployees(){
- if(!employeesReady)return;
+ if(!employeesReady||!staffCan('empleados'))return;
  const filter=employeeFilters(),rows=managementFilterEmployees(employeeRows,filter),page=paginateAdminOrders(rows,employeePage,10);employeePage=page.page;
  $('#employeeSummary').innerHTML=`<div class="business-stat"><small>Fichas registradas</small><strong>${employeeRows.length}</strong><span>En ambas sucursales</span></div><div class="business-stat"><small>Empleados activos</small><strong>${employeeRows.filter(e=>e.status==='active').length}</strong><span>${employeeRows.filter(e=>e.status==='leave').length} de licencia</span></div>`+businessBranches.slice(0,2).map(b=>`<button class="business-stat" type="button" data-employee-branch="${b.id}"><small>${escapeHTML(b.name)}</small><strong>${employeeRows.filter(e=>e.branch_id===b.id&&e.status==='active').length}</strong><span>Activos · Ver sucursal →</span></button>`).join('');
  document.querySelectorAll('[data-employee-branch]').forEach(button=>button.onclick=()=>{$('#employeeBranch').value=button.dataset.employeeBranch;employeePage=1;renderEmployees()});
@@ -18,7 +18,7 @@ function renderEmployees(){
  document.querySelectorAll('[data-employee-history]').forEach(button=>button.onclick=()=>employeeShowHistory(button.dataset.employeeHistory));
 }
 function employeeOpenForm(employee=null){
- if(!employeesReady)return;
+ if(!employeesReady||!staffCan('empleados'))return;
  const e=employee||{full_name:'',document_number:'',job_title:'',branch_id:$('#employeeBranch').value,email:'',phone:'',hire_date:managementToday(),status:'active',base_salary:'',notes:''};
  const body=`<p class="business-caption">${employee?`Código ${escapeHTML(e.employee_code)} · Los cambios quedan registrados en el historial.`:'Esta ficha no crea un usuario de acceso al sistema.'}</p><div class="form-grid">${managementField('Nombre completo','full_name','text',e.full_name,'required minlength="2" maxlength="120"')}${managementField('DNI / documento','document_number','text',e.document_number,'required pattern="[A-Za-z0-9-]{6,20}" maxlength="20"')}${managementField('Cargo','job_title','text',e.job_title,'required minlength="2" maxlength="100"')}<label>Sucursal<select name="branch_id" required>${businessBranchOptions(e.branch_id)}</select></label>${managementField('Correo','email','email',e.email,'maxlength="160"')}${managementField('Teléfono','phone','tel',e.phone,'maxlength="30"')}${managementField('Fecha de ingreso','hire_date','date',e.hire_date,'required')}<label>Situación<select name="status">${Object.entries(EMPLOYEE_STATUSES).map(([value,label])=>`<option value="${value}" ${e.status===value?'selected':''}>${label}</option>`).join('')}</select></label>${managementField('Remuneración base (opcional, S/)','base_salary','number',e.base_salary??'','step="0.01" min="0" max="9999999999.99"')}<label class="span-2">Notas<textarea name="notes" maxlength="1000" rows="3">${escapeHTML(e.notes)}</textarea></label></div><p class="business-caption">La remuneración base es informativa: no genera pagos ni cálculos de planilla. Para dar de baja, selecciona «Inactivo».</p>`;
  managementOpenModal(employee?'Editar empleado':'Nuevo empleado',body,async(form,request)=>{const data=Object.fromEntries(form);await managementSaveEmployee(employee?.id||request,data,employee?.version??null)});

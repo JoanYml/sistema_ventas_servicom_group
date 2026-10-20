@@ -1,13 +1,17 @@
 document.addEventListener("click",e=>{const b=e.target.closest("[data-close]");if(b)document.getElementById(b.dataset.close).classList.add("hidden")});
 
-let adminPollTimer=null;
+let adminPollTimer=null,staffAccessTimer=null,staffAccessChecking=false;
 
 async function hasAdminAccess(){
-  const {data:{session}}=await requireClient().auth.getSession();
-  if(!session)return false;
-  const {data,error}=await sb.rpc("is_admin");
-  if(error||data!==true){await sb.auth.signOut();return false}
-  return true;
+  const access=await resolveStaffAccess();staffApplyRole(access.role,access.email,access.legacy);
+  return !!access.role;
+}
+
+async function pollStaffAccess(){
+  if(staffAccessChecking)return;staffAccessChecking=true;
+  try{const access=await resolveStaffAccess();if(access.role!==staffRole){if(!access.role)await requireClient().auth.signOut();location.reload()}}
+  catch(error){console.warn('No se pudieron comprobar los permisos del equipo.')}
+  finally{staffAccessChecking=false}
 }
 
 async function loadAdminData(){
@@ -27,15 +31,18 @@ async function pollAdmin(){
 
 async function showAdmin(){
   $("#loginModal").classList.add("hidden");
+  $(".admin-layout").classList.remove("hidden");
   $("#logoutBtn").classList.remove("hidden");
   await loadAdminData();
   startAdminSupport();
   startBusinessManagement();
   clearInterval(adminPollTimer);
   adminPollTimer=setInterval(pollAdmin,15000);
+  clearInterval(staffAccessTimer);staffAccessTimer=setInterval(pollStaffAccess,15000);
 }
 
 function showLogin(message){
+  $(".admin-layout").classList.add("hidden");
   $("#logoutBtn").classList.add("hidden");
   $("#loginModal").classList.remove("hidden");
   const box=$("#loginError");
@@ -50,7 +57,7 @@ $("#loginForm").onsubmit=async e=>{
   try{
     const {error}=await requireClient().auth.signInWithPassword({email:String(f.get("email")).trim(),password:String(f.get("password"))});
     if(error)throw error;
-    if(!(await hasAdminAccess()))throw new Error("Este usuario no tiene permisos de administrador.");
+    if(!(await hasAdminAccess())){await requireClient().auth.signOut();throw new Error("Tu cuenta no tiene un rol activo. Solicita al dueño que te asigne acceso.")}
     e.target.reset();
     await showAdmin();
   }catch(err){
@@ -60,6 +67,7 @@ $("#loginForm").onsubmit=async e=>{
 
 $("#logoutBtn").onclick=async()=>{
   clearInterval(adminPollTimer);
+  clearInterval(staffAccessTimer);
   stopAdminSupport();
   stopBusinessManagement();
   await requireClient().auth.signOut();
@@ -71,7 +79,7 @@ $("#logoutBtn").onclick=async()=>{
   render();
   try{
     if(await hasAdminAccess())await showAdmin();
-    else showLogin();
+    else showLogin("Inicia sesión con una cuenta del equipo que tenga un rol asignado.");
   }catch(err){
     console.error(err);
     showLogin(err.message);

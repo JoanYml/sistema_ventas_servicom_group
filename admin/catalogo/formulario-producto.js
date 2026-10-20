@@ -4,9 +4,10 @@ function setProductFormMode(editing){
   $("#saveProductBtn").textContent=editing?"Guardar cambios":"Guardar producto";
   $("#editImagesNote").classList.toggle("hidden",!editing);
 }
-function openProductModal(){$("#adminModal").classList.remove("hidden")}
+function openProductModal(){if(!staffCan('productos'))return;$("#adminModal").classList.remove("hidden")}
 $("#addProduct").onclick=()=>{editingProductId=null;resetImageForm();setProductFormMode(false);loadProductCategories();openProductModal()};
 function editProduct(id){
+  if(!staffCan('productos'))return;
   const p=getDB().products.find(x=>x.id===id);
   if(!p)return toast("El producto ya no existe");
   editingProductId=id;

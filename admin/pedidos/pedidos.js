@@ -60,6 +60,7 @@ function updateOrderSaveButton(){
   $("#orderDetailClose").disabled=orderSaving;$("#orderDetailDone").disabled=orderSaving;$("#orderDetailPrint").disabled=orderSaving;
 }
 function openOrderDetail(id,trigger){
+  if(!staffCan('pedidos'))return;
   openOrderId=id;orderDetailTrigger=trigger||document.activeElement;
   renderOrderDetail();if(openOrderId===null)return;
   $("#orderDetailModal").classList.remove("hidden");

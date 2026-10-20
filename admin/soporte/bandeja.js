@@ -62,6 +62,7 @@ async function loadAdminSupport(){
   finally{adminSupportLoading=false}
 }
 function startAdminSupport(){
+  if(!staffCan('atencion'))return;
   adminSupportActive=true;clearInterval(adminSupportTimer);loadAdminSupport();
   adminSupportTimer=setInterval(()=>{if(!document.hidden)loadAdminSupport()},8000);
 }

@@ -4,17 +4,24 @@ Web para catálogo, carrito, administración y pedidos, conectada a **Supabase**
 
 ## Conectar con Supabase (una sola vez)
 
-1. **Crear las tablas:** Supabase → *SQL Editor* → *New query* → pega todo `supabase/schema.sql` → *Run*.
+1. **Crear las tablas:** Supabase → *SQL Editor* → *New query*. Ejecuta completos, en orden: `supabase/schema.sql`, `supabase/soporte.sql`, `supabase/gestion_empresarial.sql` y **`supabase/roles.sql` al final**.
 2. **Crear el administrador:** *Authentication → Users → Add user → Create new user* (correo y contraseña, marca *Auto Confirm User*). Luego, en el *SQL Editor*:
    ```sql
-   insert into public.admins (user_id)
-   select id from auth.users where email = 'TU_CORREO@ejemplo.com';
+   select public.assign_staff_role('TU_CORREO@ejemplo.com', 'admin');
    ```
 3. **Cerrar registros públicos:** *Authentication → Sign In / Providers* → desactiva *Allow new users to sign up*.
 4. **Pegar las llaves:** en `compartido/js/supabase-config.js` pon la *Project URL* y la clave **publishable** (o *anon*) de *Project Settings → API Keys*. Nunca pongas aquí la clave `secret` / `service_role`.
 5. Ejecuta `npm run dev` y abre `/admin/` para iniciar sesión.
 
-La seguridad no depende de esconder la clave publishable: la protegen las políticas RLS definidas en `schema.sql` (el público solo lee productos activos y compra mediante `create_order`; solo el administrador escribe).
+La seguridad no depende de esconder la clave publishable: la protegen las políticas RLS, los privilegios de columnas y las funciones del servidor. El público lee productos activos y compra mediante `create_order`; los roles del equipo controlan el acceso administrativo.
+
+## Roles del equipo
+
+Se inicia sesión con Supabase Auth y el rol se guarda en `public.user_roles`: **admin** accede a todos los apartados; **employee**, sólo a Pedidos y Atención; **accountant**, sólo a Dashboard y Contabilidad. Los dueños existentes de `public.admins` conservan su acceso al ejecutar `roles.sql`. Una cuenta de Auth sin rol activo no accede al panel.
+
+Después de crear las cuentas, asigna sus roles desde SQL Editor con `public.assign_staff_role('correo@empresa.com', 'employee')` o `'accountant'`. Consulta la [guía de usuarios, permisos y revocación](docs/usuarios-y-roles.md). Si vuelves a ejecutar otros esquemas, ejecuta `roles.sql` al final para reinstalar los permisos actuales.
+
+El dashboard contable usa datos agregados, sin descargar datos personales ni llaves de pedidos. La web oculta las acciones restringidas y Supabase valida los permisos también ante solicitudes directas.
 
 ## Cómo ejecutarlo
 
@@ -62,27 +69,27 @@ Para cambiar el seguimiento, selecciona el nuevo estado y pulsa «Guardar estado
 
 ## Empleados y contabilidad
 
-El menú administrativo incluye **Empleados** y **Contabilidad**. Actívalos ejecutando [supabase/gestion_empresarial.sql](supabase/gestion_empresarial.sql) en el SQL Editor de tu proyecto, después del esquema original. Crea las sucursales Chimbote y Nuevo Chimbote; no carga empleados ni operaciones ficticias. Sólo los administradores acceden a estos datos.
+El menú administrativo incluye **Empleados** y **Contabilidad**. Actívalos ejecutando [supabase/gestion_empresarial.sql](supabase/gestion_empresarial.sql) en el SQL Editor de tu proyecto, después del esquema original. Crea las sucursales Chimbote y Nuevo Chimbote; no carga empleados ni operaciones ficticias. Empleados e historial se reservan al dueño; Contabilidad está disponible para el dueño y el contable.
 
 Empleados permite crear y editar fichas, asignarlas a una sucursal, registrar traslados y situaciones, consultar historial, buscar y exportar CSV. Las fichas cargadas directamente en `public.employees` aparecen al abrir el apartado, actualizarlo o en su refresco de 15 segundos. La [guía de activación y carga de empleados](docs/gestion-empresarial.md) detalla columnas, SQL de ejemplo y plantilla CSV.
 
-Contabilidad incluye caja/bancos, ingresos/gastos, transferencias, cuentas por cobrar/pagar y abonos parciales, libro diario con partida doble y reversiones, plan de cuentas, cierre/reapertura mensual por sucursal, reportes y exportaciones. Usa soles y operaciones reales ingresadas por el administrador: los pedidos simulados no se contabilizan automáticamente. Es gestión interna; no emite comprobantes SUNAT ni calcula impuestos o planillas. Consulta la guía para registrar aperturas, evitar duplicar documentos y realizar correcciones.
+Contabilidad incluye caja/bancos, ingresos/gastos, transferencias, cuentas por cobrar/pagar y abonos parciales, libro diario con partida doble y reversiones, plan de cuentas, cierre/reapertura mensual por sucursal, reportes y exportaciones. Usa soles y operaciones reales ingresadas por el dueño o el contable: los pedidos simulados no se contabilizan automáticamente. Es gestión interna; no emite comprobantes SUNAT ni calcula impuestos o planillas. Consulta la guía para registrar aperturas, evitar duplicar documentos y realizar correcciones.
 
 ## Chat de la tienda y atención desde administración
 
 La tienda incluye un chat desplegable en la esquina inferior derecha. El asistente responde preguntas frecuentes sobre compras, envíos, pago simulado, productos y seguimiento; funciona con reglas locales, sin servicios de IA ni claves adicionales. Los precios y el stock se consultan en el catálogo disponible. El bot sólo reconoce los pedidos ya autorizados para ese navegador.
 
-Si el cliente necesita ayuda humana, puede revisar y enviar una consulta con su nombre. La consulta llega a **Administración → Atención**, donde un administrador puede responder, filtrar consultas abiertas, pendientes o cerradas, y cerrar o reabrir conversaciones. Las respuestas aparecen en el mismo chat, con actualización cada 8 segundos mientras la página está visible. La bandeja conserva los borradores de respuesta durante las actualizaciones.
+Si el cliente necesita ayuda humana, puede revisar y enviar una consulta con su nombre. La consulta llega a **Administración → Atención**, donde el dueño o un empleado puede responder, filtrar consultas abiertas, pendientes o cerradas, y cerrar o reabrir conversaciones. Las respuestas aparecen en el mismo chat, con actualización cada 8 segundos mientras la página está visible. La bandeja conserva los borradores de respuesta durante las actualizaciones.
 
 ### Activación en Supabase
 
-Después de tener el esquema principal y el administrador configurados, ejecuta **todo [supabase/soporte.sql](supabase/soporte.sql)** en el SQL Editor del mismo proyecto Supabase. Es una migración aditiva e idempotente: no reemplaza productos, pedidos ni usuarios. No se necesita pegar claves privadas ni cambiar la configuración pública del frontend. Publicar el código en GitHub no ejecuta esta migración.
+Después de tener el esquema principal y el administrador configurados, ejecuta **todo [supabase/soporte.sql](supabase/soporte.sql)** en el SQL Editor del mismo proyecto Supabase. Es una migración aditiva e idempotente: no reemplaza productos, pedidos ni usuarios. No se necesita pegar claves privadas ni cambiar la configuración pública del frontend. Publicar el código en GitHub no ejecuta esta migración. Si ya usas los roles, vuelve a ejecutar `supabase/roles.sql` al terminar.
 
 Sin esa migración, las preguntas frecuentes siguen funcionando y la derivación muestra un aviso de que la atención aún no está disponible. Administración indica cómo activar la bandeja; no se simula que una consulta fue enviada.
 
 Las conversaciones humanas se almacenan en Supabase. El navegador conserva únicamente su llave privada en `servicom_support_token`, por lo que el cliente debe volver desde el mismo navegador para consultar las respuestas. No se envía automáticamente el historial de preguntas al bot. Borrar los datos del sitio elimina el acceso del cliente a su conversación; no elimina los mensajes de Supabase. No compartas esa llave. La bandeja no comprueba que haya un encargado conectado ni promete una respuesta inmediata.
 
-Las tablas tienen RLS y los visitantes no pueden leerlas directamente. Las funciones públicas sólo permiten acceder a la conversación correspondiente a la llave privada; las respuestas y cambios de estado requieren ser administrador. Cada mensaje admite hasta 1000 caracteres y cada conversación hasta 200 mensajes.
+Las tablas tienen RLS y los visitantes no pueden leerlas directamente. Las funciones públicas sólo permiten acceder a la conversación correspondiente a la llave privada; las respuestas y cambios de estado requieren rol de dueño o empleado. Cada mensaje admite hasta 1000 caracteres y cada conversación hasta 200 mensajes.
 
 ### Pruebas de atención
 
@@ -151,7 +158,7 @@ Los scripts son clásicos (no módulos) y se cargan en el orden indicado al fina
 - Carrito con cantidades, eliminación individual y avisos de cambios de precio y stock.
 - Compra con datos de entrega, pago simulado y voucher.
 - Historial de pedidos con seguimiento y opción de comprar de nuevo.
-- Administración con menú lateral y tres pestañas: Dashboard, Productos (listado completo con filtros por nombre, categoría y stock, y edición) y Pedidos.
+- Administración con Dashboard, Productos, Pedidos, Atención, Empleados y Contabilidad; cada rol ve sólo sus apartados.
 - Modo claro y oscuro.
 
 ## Almacenamiento
@@ -160,7 +167,8 @@ Los scripts son clásicos (no módulos) y se cargan en el orden indicado al fina
 |---|---|---|
 | Supabase · tabla `products` | — | Productos (precio, stock, estado, URLs de imágenes) |
 | Supabase · tabla `orders` | — | Pedidos con datos del cliente y detalle |
-| Supabase · tabla `admins` | — | Usuarios con permiso de administrador |
+| Supabase · tabla `user_roles` | — | Rol y estado de acceso de cada cuenta del equipo |
+| Supabase · tabla `admins` | — | Compatibilidad con dueños anteriores, sincronizada desde los roles |
 | Supabase · Storage | bucket `product-images` | Iconos e imágenes de detalle |
 | `localStorage` | `servicom_my_orders` | "Llaves" de los pedidos del cliente en este navegador |
 | `localStorage` | `servicom_cart` | Carrito del cliente |
@@ -200,7 +208,7 @@ Los pedidos se crean con la función SQL `create_order`, que recalcula precios y
 | `getDB()` | Devuelve productos y pedidos desde la memoria (rápido, síncrono). |
 | `initDB(scope)` / `refreshDB()` | Define si la página es `tienda` o `admin` y descarga los datos de Supabase; devuelve `true` si algo cambió. |
 | `apiInsertProduct` / `apiPatchProduct` / `apiDeleteProduct` | Crear, modificar y eliminar productos (solo administrador). |
-| `apiUpdateOrderStatus(id, status)` | Cambia el estado de un pedido (solo administrador). |
+| `apiUpdateOrderStatus(id, status)` | Cambia el estado de un pedido (dueño y empleado); excluye las llaves privadas. |
 | `apiCreateOrder(customer, items)` | Crea el pedido con la función `create_order` y recuerda su llave. |
 | `apiResetDemo()` | Borra pedidos y productos y recarga los 10 productos demo. |
 
@@ -417,7 +425,7 @@ La pestaña activa se guarda en la URL (`#dashboard`, `#productos`, `#pedidos`),
 
 ### `admin/principal.js`
 
-Muestra el login (Supabase Auth), comprueba con `is_admin()` que el usuario sea administrador, carga los datos, refresca cada 15 s y gestiona "Cerrar sesión".
+Muestra el login (Supabase Auth), consulta el rol con `get_my_staff_role()`, carga los datos permitidos para esa cuenta, refresca los datos y permisos cada 15 s y gestiona "Cerrar sesión". `admin/acceso.js` define la navegación por rol y la transición para el dueño con el esquema anterior.
 
 ### `admin/css/admin.css`
 

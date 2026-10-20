@@ -19,6 +19,8 @@ const sb=(window.supabase&&typeof SUPABASE_URL==="string"&&!SUPABASE_URL.include
 
 let DB={products:[],orders:[]};
 let dbScope="tienda";
+let adminDataRole=null,adminDashboardDays=30;
+function configureAdminData(role){adminDataRole=role;DB={products:[],orders:[]}}
 
 function getDB(){return DB}
 function requireClient(){
@@ -58,10 +60,10 @@ function rememberOrder(order){
 
 function initDB(scope){dbScope=scope==="admin"?"admin":"tienda"}
 
-async function readAllAdminRows(client,table,column,ascending=true){
+async function readAllAdminRows(client,table,column,ascending=true,columns="*"){
   const rows=[],pageSize=500;
   for(let offset=0;;offset+=pageSize){
-    let query=client.from(table).select("*").order(column,{ascending});
+    let query=client.from(table).select(columns).order(column,{ascending});
     if(column!=="id")query=query.order("id",{ascending});
     const result=await query.range(offset,offset+pageSize-1);
     if(result.error)throw result.error;
@@ -72,14 +74,19 @@ async function readAllAdminRows(client,table,column,ascending=true){
 
 async function refreshDB(){
   const c=requireClient();
+  if(dbScope==="admin"&&adminDataRole==='accountant'){
+    const {data,error}=await c.rpc('get_staff_dashboard',{p_days:adminDashboardDays});if(error)throw error;
+    const next={products:[],orders:[],dashboard:data},changed=JSON.stringify(next)!==JSON.stringify(DB);DB=next;return changed;
+  }
+  if(dbScope==="admin"&&!['admin','employee'].includes(adminDataRole))throw new Error('La cuenta no tiene acceso al panel.');
   const prod=dbScope==="admin"
-    ?{data:await readAllAdminRows(c,"products","id")}
+    ?{data:adminDataRole==='admin'?await readAllAdminRows(c,"products","id"):[]}
     :await c.from("products").select("*").order("id");
   if(prod.error)throw prod.error;
   const products=prod.data.map(rowToProduct);
   let orders=[];
   if(dbScope==="admin"){
-    orders=(await readAllAdminRows(c,"orders","created_at",false)).map(rowToOrder);
+    orders=(await readAllAdminRows(c,"orders","created_at",false,"id,created_at,customer,items,total,status")).map(rowToOrder);
   }else{
     const tokens=getMyOrders().map(x=>x.token);
     if(tokens.length){
@@ -115,7 +122,7 @@ async function apiDeleteProduct(id){
 async function apiUpdateOrderStatus(id,status,expectedStatus){
   let query=requireClient().from("orders").update({status}).eq("id",id);
   if(expectedStatus!==undefined)query=query.eq("status",expectedStatus);
-  const res=await query.select();
+  const res=await query.select("id,created_at,customer,items,total,status");
   return rowToOrder(oneRow(res,"El pedido cambió o no tienes permiso. Actualiza el listado y vuelve a intentarlo."));
 }
 async function apiResetDemo(){

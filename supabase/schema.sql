@@ -230,10 +230,10 @@ select setval(pg_get_serial_sequence('public.products','id'),
               greatest((select max(id) from public.products), 10));
 
 -- ============================================================
---  PASO MANUAL (después de crear tu usuario en Authentication → Users):
---  convierte ese usuario en administrador cambiando el correo:
+--  ACCESO DEL EQUIPO:
+--  ejecuta soporte.sql, gestion_empresarial.sql y roles.sql (al final).
+--  Después crea tu usuario en Authentication → Users y asigna al dueño:
 --
---  insert into public.admins (user_id)
---  select id from auth.users where email = 'TU_CORREO@ejemplo.com'
---  on conflict do nothing;
+--  select public.assign_staff_role('TU_CORREO@ejemplo.com', 'admin');
+--  Ver docs/usuarios-y-roles.md para empleado, contable y revocación.
 -- ============================================================

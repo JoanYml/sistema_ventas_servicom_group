@@ -3,7 +3,7 @@ $('#financeFrom').value=managementToday().slice(0,7)+'-01';$('#financeTo').value
 function financeFilters(){return {branch:$('#financeBranch').value,from:$('#financeFrom').value,to:$('#financeTo').value}}
 function financeSetButtons(disabled){for(const id of ['financeNewCash','financeNewJournal','financeNewDocument','financeNewAccount','financePeriodOpen','financeReportExport','financeReportPrint'])document.getElementById(id).disabled=disabled}
 async function loadFinance(force=false){
- if(!businessManagementActive||(financeLoading&&!force))return false;
+ if(!staffCan('contabilidad')||!businessManagementActive||(financeLoading&&!force))return false;
  const filters=financeFilters();if(!filters.from||!filters.to||filters.from>filters.to){$('#financeFeedback').textContent='Revisa el rango: Desde debe ser anterior o igual a Hasta.';return false}
  financeLoading=true;const version=++financeLoadVersion;$('#financeFeedback').textContent='Cargando información contable…';
  try{

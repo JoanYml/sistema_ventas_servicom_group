@@ -4,7 +4,8 @@
 
 1. Debe estar instalado el esquema original de `supabase/schema.sql` y tu usuario debe figurar en `public.admins`.
 2. Abre **Supabase → SQL Editor → New query**. Copia y ejecuta **todo** el archivo [gestion_empresarial.sql](../supabase/gestion_empresarial.sql). Incluye tablas, funciones, permisos, cuentas iniciales y las sucursales **Chimbote** y **Nuevo Chimbote**.
-3. Inicia sesión en `/admin/` y abre **Empleados** o **Contabilidad**. Si ya estabas dentro, pulsa **Actualizar**.
+3. Si utilizas los roles del equipo, ejecuta también `supabase/roles.sql` **al final**, después de instalar `soporte.sql`. Consulta [usuarios y roles](usuarios-y-roles.md).
+4. Inicia sesión en `/admin/` y abre **Empleados** o **Contabilidad**. Si ya estabas dentro, pulsa **Actualizar**.
 
 Este script no borra productos ni pedidos, no crea empleados ficticios y se puede volver a ejecutar. La web explica cómo activar el módulo si faltan sus tablas. No se ha aplicado automáticamente a tu base remota: ejecútalo en tu proyecto de Supabase.
 
@@ -49,7 +50,7 @@ Deja que la base genere `id`, `employee_code`, `version`, `created_at` y `update
 
 **Al guardar en la base, las fichas aparecerán al abrir Empleados, al pulsar Actualizar o en la siguiente actualización automática (15 segundos mientras el apartado está visible).** El apartado permite buscar, filtrar por sucursal y situación, editar fichas, trasladar empleados, consultar historial y exportar el listado CSV. La remuneración base se ve en la ficha y no se incluye en esa exportación.
 
-Una ficha de empleado no crea una cuenta de inicio de sesión. Sólo los administradores tienen acceso a empleados, historial y contabilidad. El salario es informativo: no genera planillas ni pagos automáticos. Usa la situación Inactivo para conservar el historial al dar de baja a una persona.
+Una ficha de empleado no crea una cuenta de inicio de sesión. Sólo el dueño tiene acceso a empleados e historial; el dueño y el contable tienen acceso a contabilidad. El salario es informativo: no genera planillas ni pagos automáticos. Usa la situación Inactivo para conservar el historial al dar de baja a una persona.
 
 ## Operar la contabilidad
 
@@ -71,7 +72,7 @@ Registrar un documento reconoce el ingreso, gasto o activo en su fecha de emisi�
 
 Los asientos guardados no se editan ni se eliminan desde la web. Abre el detalle y usa **Registrar reversión**, indicando motivo y fecha. Se guarda el asiento contrario y ambos permanecen en los reportes. Para anular el origen de un documento con abonos, revierte primero sus cobros/pagos; revertir un abono restaura su saldo pendiente. Un documento sin abonos queda anulado al revertir su origen. Los números de asiento pueden tener saltos por operaciones rechazadas.
 
-Las operaciones se validan en PostgreSQL: permisos de administrador, importes finitos, partida doble, fechas, saldo disponible, período abierto y claves de operación para evitar duplicaciones al reintentar un registro financiero. Las fichas de empleados comprueban su versión al editar para evitar sobrescribir cambios de otra sesión.
+Las operaciones se validan en PostgreSQL: permisos del apartado, importes finitos, partida doble, fechas, saldo disponible, período abierto y claves de operación para evitar duplicaciones al reintentar un registro financiero. Las fichas de empleados comprueban su versión al editar para evitar sobrescribir cambios de otra sesión.
 
 ### Alcance
 
