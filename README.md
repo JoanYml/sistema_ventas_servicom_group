@@ -60,6 +60,14 @@ Para cambiar el seguimiento, selecciona el nuevo estado y pulsa «Guardar estado
 
 `npm test` también cubre búsqueda, filtros de pedidos, límites de fechas, orden, paginación, contadores y la actualización condicionada al estado anterior.
 
+## Empleados y contabilidad
+
+El menú administrativo incluye **Empleados** y **Contabilidad**. Actívalos ejecutando [supabase/gestion_empresarial.sql](supabase/gestion_empresarial.sql) en el SQL Editor de tu proyecto, después del esquema original. Crea las sucursales Chimbote y Nuevo Chimbote; no carga empleados ni operaciones ficticias. Sólo los administradores acceden a estos datos.
+
+Empleados permite crear y editar fichas, asignarlas a una sucursal, registrar traslados y situaciones, consultar historial, buscar y exportar CSV. Las fichas cargadas directamente en `public.employees` aparecen al abrir el apartado, actualizarlo o en su refresco de 15 segundos. La [guía de activación y carga de empleados](docs/gestion-empresarial.md) detalla columnas, SQL de ejemplo y plantilla CSV.
+
+Contabilidad incluye caja/bancos, ingresos/gastos, transferencias, cuentas por cobrar/pagar y abonos parciales, libro diario con partida doble y reversiones, plan de cuentas, cierre/reapertura mensual por sucursal, reportes y exportaciones. Usa soles y operaciones reales ingresadas por el administrador: los pedidos simulados no se contabilizan automáticamente. Es gestión interna; no emite comprobantes SUNAT ni calcula impuestos o planillas. Consulta la guía para registrar aperturas, evitar duplicar documentos y realizar correcciones.
+
 ## Chat de la tienda y atención desde administración
 
 La tienda incluye un chat desplegable en la esquina inferior derecha. El asistente responde preguntas frecuentes sobre compras, envíos, pago simulado, productos y seguimiento; funciona con reglas locales, sin servicios de IA ni claves adicionales. Los precios y el stock se consultan en el catálogo disponible. El bot sólo reconoce los pedidos ya autorizados para ese navegador.
