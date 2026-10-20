@@ -17,7 +17,7 @@ async function loadAdminData(){
 
 function adminBusy(){
   const a=document.activeElement;
-  return !$("#adminModal").classList.contains("hidden")||(a&&a.id!=="dashboardPeriod"&&/^(INPUT|SELECT|TEXTAREA)$/.test(a.tagName)&&a.closest("main"));
+  return orderSaving||!$("#orderDetailModal").classList.contains("hidden")||!$("#adminModal").classList.contains("hidden")||(a&&a.id!=="dashboardPeriod"&&/^(INPUT|SELECT|TEXTAREA)$/.test(a.tagName)&&a.closest("[data-panel='productos']"));
 }
 
 async function pollAdmin(){

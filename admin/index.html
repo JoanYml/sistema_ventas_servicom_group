@@ -43,8 +43,35 @@
 <button type="button" id="clearFilters" class="secondary-btn">Limpiar filtros</button></div>
 <p id="productsCount" class="products-count"></p>
 <div class="table-wrap"><table><thead><tr><th>Producto</th><th>Categoría</th><th>Precio (S/)</th><th>Stock</th><th>Activo</th><th>Acciones</th></tr></thead><tbody id="productsTable"></tbody></table></div></section></section>
-<section class="admin-view hidden" data-panel="pedidos"><div class="admin-title"><div><p class="eyebrow">VENTAS</p><h1>Pedidos</h1><p>Actualiza el estado para simular el seguimiento.</p></div></div><section class="admin-card"><div class="table-wrap"><table><thead><tr><th>Pedido</th><th>Cliente</th><th>Total</th><th>Fecha</th><th>Estado</th><th>Detalle</th></tr></thead><tbody id="ordersTable"></tbody></table></div></section></section>
+<section class="admin-view hidden orders-view" data-panel="pedidos">
+  <div class="admin-title"><div><p class="eyebrow">GESTIÓN DE VENTAS</p><h1>Pedidos</h1><p>Organiza las entregas y consulta cada compra en un solo lugar.</p></div><div class="orders-header-actions"><button id="ordersRefresh" class="secondary-btn" type="button">↻ Actualizar</button><button id="ordersExport" class="primary-btn" type="button">↓ Exportar CSV</button></div></div>
+  <p class="orders-caption">Resumen de todos los pedidos · Importes en soles · Pagos simulados</p>
+  <div id="ordersSummary" class="orders-summary"></div>
+  <section class="admin-card orders-card">
+    <div class="orders-card-heading"><div><h2>Listado de pedidos</h2><p>Busca un pedido o combina los filtros para encontrarlo.</p></div><button id="ordersClear" class="dashboard-link" type="button">Limpiar filtros</button></div>
+    <div class="orders-filters">
+      <label class="filter-field orders-search">Buscar pedido o cliente<input id="orderSearch" type="search" placeholder="Número, nombre, correo, DNI o teléfono" autocomplete="off"></label>
+      <label class="filter-field">Estado<select id="orderStatusFilter"><option value="all">Todos los estados</option><option value="pending">Pendientes de entrega</option><option>Confirmado</option><option>Despachando</option><option>Enviando</option><option>Entregado</option></select></label>
+      <label class="filter-field">Desde<input id="orderDateFrom" type="date"></label>
+      <label class="filter-field">Hasta<input id="orderDateTo" type="date"></label>
+    </div>
+    <p id="orderDateError" class="orders-error hidden" role="alert">La fecha «Desde» debe ser anterior o igual a «Hasta».</p>
+    <div class="orders-results-toolbar"><p id="ordersCount" role="status"></p><label class="orders-sort">Ordenar<select id="orderSort"><option value="newest">Más recientes</option><option value="oldest">Más antiguos</option><option value="highest">Mayor importe</option><option value="lowest">Menor importe</option></select></label></div>
+    <div class="table-wrap orders-table-wrap"><table class="orders-table"><caption class="sr-only">Pedidos que coinciden con los filtros. Las fechas corresponden a Perú.</caption><thead><tr><th>Pedido / Fecha</th><th>Cliente</th><th>Productos</th><th>Total</th><th>Estado</th><th><span class="sr-only">Acciones</span></th></tr></thead><tbody id="ordersTable"></tbody></table></div>
+    <div class="orders-pagination"><label>Por página<select id="ordersPageSize"><option>10</option><option>25</option><option>50</option></select></label><span id="ordersPageInfo"></span><div><button id="ordersPrev" class="secondary-btn" type="button" aria-label="Página anterior">← Anterior</button><button id="ordersNext" class="secondary-btn" type="button" aria-label="Página siguiente">Siguiente →</button></div></div>
+    <p id="ordersNotice" class="orders-caption" role="status"></p>
+  </section>
+</section>
 </main></div>
+<div id="orderDetailModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="orderDetailTitle" tabindex="-1">
+  <div class="modal-card order-modal-card">
+    <button id="orderDetailClose" class="close-btn modal-close" type="button" aria-label="Cerrar detalle del pedido">×</button>
+    <div id="orderDetailContent"></div>
+    <form id="orderStatusForm" class="order-status-form"><label for="orderStatusEdit">Actualizar seguimiento<select id="orderStatusEdit"></select></label><button id="orderStatusSave" class="primary-btn" type="submit" disabled>Guardar estado</button></form>
+    <p id="orderStatusFeedback" class="orders-caption" role="status"></p>
+    <div class="order-detail-actions"><button id="orderDetailPrint" class="secondary-btn" type="button">Imprimir constancia</button><button id="orderDetailDone" class="secondary-btn" type="button">Cerrar</button></div>
+  </div>
+</div>
 <div id="adminModal" class="modal hidden"><div class="modal-card"><button class="close-btn modal-close" data-close="adminModal">×</button><h2 id="productModalTitle">Nuevo producto tecnológico</h2><form id="productForm" class="form-grid"><label>Nombre<input name="name" required></label>
 <label class="category-field">Categoría
   <div class="category-row">
@@ -85,4 +112,4 @@
   </div>
 </div>
 <div id="loginModal" class="modal hidden"><div class="modal-card login-card"><p class="eyebrow">ACCESO ADMINISTRADOR</p><h2>Iniciar sesión</h2><form id="loginForm" class="form-grid"><label class="span-2">Correo<input name="email" type="email" required autocomplete="username"></label><label class="span-2">Contraseña<input name="password" type="password" required autocomplete="current-password"></label><p id="loginError" class="login-error span-2 hidden" role="alert"></p><button type="submit" id="loginBtn" class="primary-btn span-2">Entrar</button></form></div></div>
-<div id="toast" class="toast"></div><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="../compartido/js/supabase-config.js"></script><script src="../compartido/js/tema.js"></script><script src="../compartido/js/datos.js"></script><script src="../compartido/js/utilidades.js"></script><script src="panel/metricas.js"></script><script src="panel/panel.js"></script><script src="pedidos/pedidos.js"></script><script src="catalogo/productos.js"></script><script src="catalogo/categorias.js"></script><script src="catalogo/imagenes.js"></script><script src="catalogo/formulario-producto.js"></script><script src="panel/navegacion.js"></script><script src="principal.js"></script></body></html>
+<div id="toast" class="toast"></div><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="../compartido/js/supabase-config.js"></script><script src="../compartido/js/tema.js"></script><script src="../compartido/js/datos.js"></script><script src="../compartido/js/utilidades.js"></script><script src="panel/metricas.js"></script><script src="panel/panel.js"></script><script src="pedidos/consultas.js"></script><script src="pedidos/pedidos.js"></script><script src="catalogo/productos.js"></script><script src="catalogo/categorias.js"></script><script src="catalogo/imagenes.js"></script><script src="catalogo/formulario-producto.js"></script><script src="panel/navegacion.js"></script><script src="principal.js"></script></body></html>

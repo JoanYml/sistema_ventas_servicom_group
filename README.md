@@ -50,6 +50,16 @@ npm test
 
 Las pruebas usan el runner integrado de Node.js, sin dependencias adicionales. Cubren fechas y límites de período, comparaciones, ranking con precios históricos, inventario, estados vacíos, exportación CSV y carga paginada.
 
+## Gestión de pedidos
+
+La sección Pedidos incluye contadores de todo el historial, búsqueda por número de pedido, nombre, correo, DNI o teléfono; filtros combinables de estado y fechas inclusivas de Perú; orden por fecha o importe; y páginas de 10, 25 o 50 registros. La exportación CSV incluye todos los resultados filtrados, no sólo la página visible.
+
+«Ver detalle» muestra datos de contacto y entrega, productos, cantidades, precios históricos, total y seguimiento. Desde allí se puede imprimir una constancia de pedido. La constancia indica que el pago es simulado y no reemplaza una boleta o factura.
+
+Para cambiar el seguimiento, selecciona el nuevo estado y pulsa «Guardar estado». Se solicita confirmación y se comprueba el estado anterior antes de actualizar para evitar sobrescribir cambios de otra sesión. La actualización automática se pausa mientras está abierto el detalle; los filtros y la página se conservan al recargar el listado. No se añaden cancelaciones ni cambios al stock desde esta sección.
+
+`npm test` también cubre búsqueda, filtros de pedidos, límites de fechas, orden, paginación, contadores y la actualización condicionada al estado anterior.
+
 ## Estructura del proyecto
 
 ```text

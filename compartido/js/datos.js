@@ -112,9 +112,11 @@ async function apiDeleteProduct(id){
   const res=await requireClient().from("products").delete().eq("id",id).select();
   oneRow(res,"No se pudo eliminar: la sesión venció o no tienes permiso");
 }
-async function apiUpdateOrderStatus(id,status){
-  const res=await requireClient().from("orders").update({status}).eq("id",id).select();
-  oneRow(res,"No se pudo actualizar el pedido: la sesión venció o no tienes permiso");
+async function apiUpdateOrderStatus(id,status,expectedStatus){
+  let query=requireClient().from("orders").update({status}).eq("id",id);
+  if(expectedStatus!==undefined)query=query.eq("status",expectedStatus);
+  const res=await query.select();
+  return rowToOrder(oneRow(res,"El pedido cambió o no tienes permiso. Actualiza el listado y vuelve a intentarlo."));
 }
 async function apiResetDemo(){
   const c=requireClient();
