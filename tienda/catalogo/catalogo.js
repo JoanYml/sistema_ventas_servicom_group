@@ -1,4 +1,8 @@
-function loadCategories(){const sel=$("#category"),cur=sel.value,cats=[...new Set(getDB().products.map(p=>p.category))];sel.innerHTML='<option value="">Todas las categorías</option>'+cats.map(c=>`<option>${escapeHTML(c)}</option>`).join("");sel.value=cats.includes(cur)?cur:""}
+function loadCategories(){
+  const select=$("#category"),current=select.value,groups=storeCategoryGroups(getDB().products);
+  select.innerHTML='<option value="">Todas las categorías</option>'+groups.map(group=>`<option value="${escapeHTML(group.name)}">${escapeHTML(group.name)} (${group.count})</option>`).join("");
+  select.value=groups.some(group=>group.name===current)?current:"";
+}
 function sortProducts(list,sortBy){
   const arr=[...list];
   if(sortBy==="price-asc")arr.sort((a,b)=>a.price-b.price);
@@ -8,35 +12,21 @@ function sortProducts(list,sortBy){
   return arr;
 }
 function productCardHTML(p){
-  const low=p.stock>0&&p.stock<10;
-  const out=p.stock<1;
-  const fav=isFavorite(p.id);
-  return `<article class="product-card">
-    <div class="product-image">
-      <button type="button" class="fav-btn ${fav?"active":""}" data-id="${p.id}" onclick="toggleFavorite(${p.id})" aria-label="${fav?"Quitar de favoritos":"Guardar en favoritos"}" title="${fav?"Quitar de favoritos":"Guardar en favoritos"}">${fav?"♥":"♡"}</button>
-      ${out?'<span class="stock-flag out">Sin stock</span>':(low?'<span class="stock-flag">¡Últimas unidades!</span>':"")}
-      ${productImage(p,"product-img","icon")}
-    </div>
-    <div class="product-body">
-      <span class="tag">${p.category}</span>
-      <h3>${p.name}</h3>
-      <p>${p.description}</p>
-      <div class="price">${money(p.price)}</div>
-      <div class="stock ${low?"low":""}">${p.stock} disponibles</div>
-      <div class="card-actions">
-        <button class="primary-btn" onclick="openProduct(${p.id})" ${out?"disabled":""}>Ver producto</button>
-        <button class="quick-add-btn" onclick="quickAdd(${p.id})" ${out?"disabled":""} title="Agregar 1 unidad al carrito" aria-label="Agregar 1 unidad de ${p.name} al carrito">+</button>
-      </div>
-    </div>
+  const low=p.stock>0&&p.stock<10,out=p.stock<1,fav=isFavorite(p.id);
+  return `<article class="product-card" data-product-id="${p.id}">
+    <div class="product-image"><button type="button" class="store-product-preview" onclick="openProduct(${p.id})" aria-label="Ver ${escapeHTML(p.name)}">${storeProductVisual(p)}</button><button type="button" class="fav-btn ${fav?"active":""}" data-id="${p.id}" onclick="toggleFavorite(${p.id})" aria-pressed="${fav}" aria-label="${fav?"Quitar de favoritos":"Guardar en favoritos"}: ${escapeHTML(p.name)}" title="${fav?"Quitar de favoritos":"Guardar en favoritos"}">${fav?"♥":"♡"}</button>${out?'<span class="stock-flag out">Agotado</span>':low?'<span class="stock-flag">Pocas unidades</span>':""}</div>
+    <div class="product-body"><span class="tag">${escapeHTML(p.category)}</span><h3><button type="button" onclick="openProduct(${p.id})">${escapeHTML(p.name)}</button></h3><p>${escapeHTML(p.description)}</p><div class="store-product-meta"><div><span class="store-price-label">Precio</span><div class="price">${money(p.price)}</div></div><span class="stock ${out?"out":low?"low":""}">${out?"Sin stock":`${p.stock} disponibles`}</span></div><div class="card-actions"><button class="store-product-details" type="button" onclick="openProduct(${p.id})">Ver detalles <span aria-hidden="true">${storeArrowIcon()}</span></button><button class="quick-add-btn" type="button" onclick="quickAdd(${p.id})" ${out?"disabled":""} title="Agregar 1 unidad al carrito" aria-label="Agregar 1 unidad de ${escapeHTML(p.name)} al carrito"><span aria-hidden="true">＋</span><span>Agregar</span></button></div></div>
   </article>`;
 }
 function emptyStateHTML(){
-  return `<div class="empty"><span class="empty-icon">🔍</span><div>No encontramos productos con estos filtros.</div><button class="secondary-btn" onclick="resetFilters()" type="button">Quitar filtros</button></div>`;
+  const active=getDB().products.some(p=>p.active),error=storeCatalogState==="error"&&!active;
+  return `<div class="empty store-empty"><span class="store-empty-icon" aria-hidden="true">${storeCategoryIcon("Productos")}</span><h3>${error?"El catálogo no está disponible por el momento":active?"No encontramos lo que buscas":"Todavía no hay productos publicados"}</h3><p>${error?"Puedes volver a intentar desde el aviso superior.":active?"Prueba otra búsqueda o quita algún filtro para seguir explorando.":"Puedes resolver tus dudas en nuestro centro de ayuda."}</p>${active?'<button class="secondary-btn" onclick="resetFilters()" type="button">Quitar filtros</button>':""}</div>`;
 }
 function resetFilters(){
   $("#search").value="";
   $("#category").value="";
   if($("#sortBy"))$("#sortBy").value="";
+  $("#inStockOnly").checked=false;
   setOnlyFavorites(false);
   updateSearchClearVisibility();
   renderProducts();
@@ -46,10 +36,8 @@ function updateSearchClearVisibility(){
   if(wrap)wrap.classList.toggle("has-value",!!$("#search").value);
 }
 async function renderProducts(){
-  const db=getDB(),q=$("#search").value.toLowerCase(),cat=$("#category").value,sortBy=$("#sortBy")?$("#sortBy").value:"";
-  let list=db.products.filter(p=>p.active&&(!q||p.name.toLowerCase().includes(q))&&(!cat||p.category===cat));
-  if(onlyFavorites)list=list.filter(p=>favorites.includes(p.id));
-  list=sortProducts(list,sortBy);
+  const list=filterStoreProducts(getDB().products,storeFilterState());
   $("#productsGrid").innerHTML=list.length?list.map(productCardHTML).join(""):emptyStateHTML();
+  renderStorePresentation(list);
   await hydrateImages($("#productsGrid"));
 }

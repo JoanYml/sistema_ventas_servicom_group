@@ -89,6 +89,14 @@ SERVICOM_PGLITE_PATH=/tmp/servicom-support-db/node_modules/@electric-sql/pglite 
 
 La prueba de navegador usa dos sesiones aisladas y una base PGlite temporal. Intercepta las peticiones a Supabase y no modifica la base remota. Si Playwright o Chromium están en otra ubicación, se pueden indicar con `SERVICOM_PLAYWRIGHT_PATH` y `SERVICOM_CHROMIUM_PATH`.
 
+## Diseño e interacción de la tienda
+
+La portada muestra una selección navegable de hasta seis productos del catálogo, sin rotación automática. Los accesos por categoría usan las cantidades de productos publicados. El catálogo combina búsqueda sin tildes por nombre, categoría o descripción, favoritos y disponibilidad; permite quitar filtros individualmente y alternar entre cuadrícula y lista. La vista elegida se conserva en `servicom_catalog_view`.
+
+`tienda/catalogo/presentacion.js` conecta estas interacciones y `tienda/css/escaparate.css` define el diseño de la tienda. Las imágenes cargadas de los productos tienen prioridad; cuando faltan se muestran ilustraciones vectoriales identificadas como referenciales. La página incluye preguntas frecuentes, accesos al chat y avisos con reintento cuando falla la carga del catálogo. El diseño adapta los controles a móvil y modo oscuro y respeta la preferencia de movimiento reducido.
+
+Con el servidor activo, `node scripts/probar-tienda-navegador.cjs` valida el recorrido de compra hasta el pago simulado, filtros, favoritos, vistas, chat y estados de error en cinco tamaños de pantalla. Requiere Playwright y Chromium, con las mismas variables opcionales de ubicación que las pruebas de atención. Usa datos simulados y no registra compras ni modifica Supabase.
+
 ## Estructura del proyecto
 
 ```text

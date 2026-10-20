@@ -8,11 +8,12 @@ async function resolveImageRef(ref){
 }
 function productImage(p,cls="",mode="detail"){
   const ref=imageRef(p,mode);
-  return ref?`<img class="${cls}" data-image-ref="${ref}" alt="${p.name}">`:(p.icon||"📦");
+  return ref?`<img class="${cls}" data-image-ref="${escapeHTML(ref)}" alt="${escapeHTML(p.name)}" loading="lazy" decoding="async">`:escapeHTML(p.icon||"📦");
 }
 async function hydrateImages(root=document){
   const imgs=[...root.querySelectorAll("img[data-image-ref]")];
   await Promise.all(imgs.map(async img=>{
+    img.onerror=()=>img.replaceWith(document.createTextNode("📦"));
     try{const src=await resolveImageRef(img.dataset.imageRef);if(src)img.src=src;else img.replaceWith(document.createTextNode("📦"));}
     catch(err){console.warn("No se pudo cargar una imagen:",err);img.replaceWith(document.createTextNode("📦"));}
   }));

@@ -15,17 +15,20 @@ if($("#favBtn"))$("#favBtn").onclick=()=>{setOnlyFavorites(!onlyFavorites);rende
 if($("#onlyFavBtn"))$("#onlyFavBtn").onclick=()=>{setOnlyFavorites(!onlyFavorites);renderProducts()};
 async function initStore(){
   initDB("tienda");
-  try{await refreshDB()}catch(err){console.error(err);toast(err.message||"No se pudo conectar con la base de datos")}
+  try{await refreshDB();storeCatalogState="ready"}catch(err){storeCatalogState="error";console.error(err)}
   loadCategories();updateFavCount();updateSearchClearVisibility();
   await renderProducts();await renderCart();await renderRecent();updateCount();
 }
 async function pollStore(){
   try{
+    const previousState=storeCatalogState;
     const changed=await refreshDB();
-    if(changed){loadCategories();renderProducts();renderRecent()}
+    storeCatalogState="ready";
+    if(changed||previousState!=="ready"){loadCategories();renderProducts();renderRecent()}
     syncCartWithCatalog();renderCart();updateCount();
-  }catch(err){console.warn("No se pudo actualizar el catálogo:",err)}
+  }catch(err){storeCatalogState="error";renderStoreCatalogStatus();console.warn("No se pudo actualizar el catálogo:",err)}
 }
+initStorePresentation();
 initStore();
 setInterval(()=>{syncCartWithCatalog();renderCart();updateCount()},1000);
 setInterval(pollStore,10000);

@@ -8,70 +8,37 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../compartido/css/base.css">
 <link rel="stylesheet" href="css/tienda.css">
+<link rel="stylesheet" href="css/escaparate.css">
 <link rel="stylesheet" href="soporte/chat.css">
 </head>
-<body>
-<header class="topbar">
-  <div class="brand"><span class="brand-mark">S</span><span>Servicom Group</span></div>
-  <nav>
-    <a href="#catalogo">Catálogo</a>
-    <button class="icon-btn fav-nav-btn" id="favBtn" type="button">♡ Favoritos <b id="favCount">0</b></button>
-    <button class="icon-btn" id="ordersBtn">📦 Pedidos</button>
-    <button class="icon-btn cart-btn" id="cartBtn">🛒 Carrito <b id="cartCount">0</b></button>
+<body class="storefront">
+<a class="store-skip" href="#catalogo">Saltar al catálogo</a>
+<div class="store-announcement"><span>Tecnología para trabajar, crear y conectar.</span><a href="#como-comprar">Descubre cómo comprar <span aria-hidden="true"><svg class="store-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M6 18 18 6M6 6h12v12"/></svg></span></a></div>
+<header class="topbar store-topbar">
+  <a class="brand" href="#inicio" aria-label="Servicom Group, inicio"><span class="brand-mark">S</span><span>Servicom Group<small>Tu siguiente gran idea empieza aquí</small></span></a>
+  <nav aria-label="Navegación de la tienda">
+    <a class="store-catalog-link" href="#catalogo">Explorar catálogo</a>
+    <button class="icon-btn fav-nav-btn" id="favBtn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg><span>Favoritos</span><b id="favCount">0</b></button>
+    <button class="icon-btn" id="ordersBtn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 7 9-4 9 4v10l-9 4-9-4V7Zm0 0 9 4 9-4M12 11v10M7.5 5 16 9"/></svg><span>Mis pedidos</span></button>
+    <button class="icon-btn cart-btn" id="cartBtn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 3h3l3 12h11l3-9H6M9 20h.01M18 20h.01"/></svg><span>Carrito</span><b id="cartCount">0</b></button>
     <button class="theme-switch" id="themeToggle" type="button" aria-label="Cambiar modo de color" title="Cambiar modo de color"><span class="theme-track"><span class="theme-thumb"><span class="theme-icon">☀</span></span></span></button>
-    <a class="admin-link" href="../admin/">Administración</a>
+    <a class="admin-link" href="../admin/">Administración <span aria-hidden="true"><svg class="store-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M6 18 18 6M6 6h12v12"/></svg></span></a>
   </nav>
 </header>
-<main>
-<section class="hero">
-  <div>
-    <p class="eyebrow">TECNOLOGÍA Y EQUIPAMIENTO</p>
-    <h1>Equipa tu oficina con <em>tecnología confiable</em></h1>
-    <p>Encuentra laptops, periféricos y equipos de red, revisa sus características a detalle y arma tu pedido en minutos, con seguimiento de principio a fin.</p>
-    <div class="hero-actions">
-      <a class="primary-btn" href="#catalogo">Ver catálogo</a>
-      <button class="secondary-btn" id="heroOrdersBtn" type="button">Rastrear un pedido</button>
-    </div>
-    <div class="trust-row">
-      <div class="trust-item"><span>🚚</span>Entrega en 24–48h</div>
-      <div class="trust-item"><span>🛡️</span>Compra protegida</div>
-      <div class="trust-item"><span>🔧</span>Soporte técnico incluido</div>
-    </div>
-  </div>
-  <div class="hero-card">
-    <div class="hero-card-icon">💻</div>
-    <strong>Catálogo tecnológico</strong>
-    <small>Selecciona un producto para ver su detalle, guardarlo en favoritos o agregarlo al carrito en un clic.</small>
-    <span class="hero-signal"><i></i>Stock actualizado en tiempo real</span>
-  </div>
-</section>
-
-<section id="catalogo" class="section">
-  <div class="section-head">
-    <div><p class="eyebrow">PRODUCTOS</p><h2>Catálogo tecnológico</h2></div>
-    <div class="filters">
-      <div class="search-wrap" id="searchWrap">
-        <input id="search" type="search" placeholder="Buscar producto..." autocomplete="off">
-        <button class="search-clear" id="searchClear" type="button" aria-label="Limpiar búsqueda">×</button>
-      </div>
-      <select id="category"></select>
-      <select id="sortBy">
-        <option value="">Ordenar: relevancia</option>
-        <option value="price-asc">Precio: menor a mayor</option>
-        <option value="price-desc">Precio: mayor a menor</option>
-        <option value="name-asc">Nombre: A–Z</option>
-        <option value="stock-desc">Más disponibilidad</option>
-      </select>
-      <button class="fav-filter-btn" id="onlyFavBtn" type="button">♥ Solo favoritos</button>
-    </div>
-  </div>
-  <div id="productsGrid" class="product-grid"></div>
-</section>
-
-<section id="recientes" class="section recent-section hidden">
-  <div class="section-head"><div><p class="eyebrow">TU ACTIVIDAD</p><h2>Vistos recientemente</h2></div></div>
-  <div id="recentGrid" class="recent-grid"></div>
-</section>
+<main id="inicio">
+  <section class="hero store-hero" aria-labelledby="storeHeroTitle">
+    <div class="store-hero-copy"><p class="eyebrow">IDEAS GRANDES. EQUIPOS A TU ALTURA.</p><h1 id="storeHeroTitle">Equipa tu oficina con <em>tecnología confiable</em></h1><p class="store-hero-description">Un mejor espacio empieza con el equipo correcto. Descubre tecnología para trabajar, estudiar y darle vida a tus proyectos.</p><div class="hero-actions"><a class="primary-btn" href="#catalogo">Descubrir catálogo <span aria-hidden="true">→</span></a><button class="secondary-btn" id="heroOrdersBtn" type="button">Seguir mi pedido</button></div><div class="store-hero-note"><span class="store-live-dot" aria-hidden="true"></span>Explora, compara precios y elige a tu ritmo.</div></div>
+    <div class="store-showcase" id="storeShowcase" aria-label="Selección del catálogo" aria-busy="true"><div class="showcase-top"><span>EN EL CATÁLOGO</span><div><button id="showcasePrev" type="button" aria-label="Ver producto anterior">←</button><button id="showcaseNext" type="button" aria-label="Ver producto siguiente">→</button></div></div><div id="showcaseProduct" class="showcase-product" aria-live="polite" aria-atomic="true"><div class="showcase-loading">Preparando tu próximo espacio de trabajo…</div></div><div class="showcase-bottom"><span><i class="store-live-dot" aria-hidden="true"></i>Elige lo que va contigo</span><span id="showcasePosition"></span></div></div>
+  </section>
+  <div class="store-benefits" aria-label="Servicios de la tienda"><div><span class="store-benefit-icon" aria-hidden="true"><svg class="store-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M6 18 18 6M6 6h12v12"/></svg></span><div><b>Encuentra tu equipo</b><span>Precios y stock en cada producto</span></div></div><div><span class="store-benefit-icon" aria-hidden="true">▤</span><div><b>Sigue tu compra</b><span>Consulta el estado en Mis pedidos</span></div></div><button type="button" data-open-support><span class="store-benefit-icon" aria-hidden="true">◉</span><div><b>Estamos para orientarte</b><span>Preguntas frecuentes y atención del equipo</span></div><span aria-hidden="true"><svg class="store-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M6 18 18 6M6 6h12v12"/></svg></span></button></div>
+  <section class="section store-category-section" aria-labelledby="storeCategoryTitle"><div class="section-head"><div><p class="eyebrow">ENCUENTRA TU PRÓXIMA IDEA</p><h2 id="storeCategoryTitle">Un equipo para cada proyecto</h2></div><a class="store-text-link" href="#catalogo">Ver todo el catálogo <span aria-hidden="true">→</span></a></div><div id="storeCategories" class="store-categories" aria-label="Explorar por categoría"></div></section>
+  <section id="catalogo" class="section store-catalog" aria-labelledby="catalogTitle"><div class="section-head"><div><p class="eyebrow">EXPLORA Y ELIGE</p><h2 id="catalogTitle">Catálogo tecnológico</h2><p class="store-section-copy">Encuentra eso que hace la diferencia en tu día.</p></div><span class="store-catalog-tag"><i class="store-live-dot" aria-hidden="true"></i>Precios en soles</span></div>
+    <div class="store-filter-panel"><div class="filters"><div class="search-wrap" id="searchWrap"><label class="store-sr-only" for="search">Buscar productos</label><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg><input id="search" type="search" placeholder="¿Qué estás buscando?" autocomplete="off"><button class="search-clear" id="searchClear" type="button" aria-label="Limpiar búsqueda">×</button></div><label class="store-sr-only" for="category">Categoría</label><select id="category"><option value="">Todas las categorías</option></select><label class="store-sr-only" for="sortBy">Ordenar productos</label><select id="sortBy"><option value="">Ordenar: relevancia</option><option value="price-asc">Precio: menor a mayor</option><option value="price-desc">Precio: mayor a menor</option><option value="name-asc">Nombre: A–Z</option><option value="stock-desc">Más disponibilidad</option></select><button class="fav-filter-btn" id="onlyFavBtn" type="button" aria-pressed="false">♡ Favoritos</button></div><div class="store-filter-footer"><label class="store-stock-filter"><input id="inStockOnly" type="checkbox">Solo productos disponibles</label><div id="storeActiveFilters" class="store-active-filters" aria-label="Filtros activos"></div><button id="clearCatalogFilters" class="store-text-link" type="button" hidden>Limpiar filtros</button></div></div>
+    <div id="storeCatalogStatus" class="store-catalog-status" role="status"></div><div class="store-results"><p id="storeResultCount" role="status">Preparando catálogo…</p><div class="store-view-toggle" role="group" aria-label="Presentación del catálogo"><button id="catalogGridView" type="button" aria-label="Ver en cuadrícula" aria-pressed="true"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></button><button id="catalogListView" type="button" aria-label="Ver en lista" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5h12M9 12h12M9 19h12M3 5h1M3 12h1M3 19h1"/></svg></button></div></div><div id="productsGrid" class="product-grid" aria-busy="true"><div class="store-loading">Cargando productos…</div></div>
+  </section>
+  <section id="recientes" class="section recent-section hidden"><div class="section-head"><div><p class="eyebrow">SIGUE EXPLORANDO</p><h2>Vistos recientemente</h2></div><span class="store-section-copy">Retoma donde lo dejaste.</span></div><div id="recentGrid" class="recent-grid"></div></section>
+  <section id="como-comprar" class="section store-how"><div class="section-head"><div><p class="eyebrow">DE LA IDEA A TU CARRITO</p><h2>Comprar puede ser así de simple</h2></div></div><div class="store-steps"><article><span>01</span><h3>Encuentra lo que necesitas</h3><p>Explora las categorías, revisa cada detalle y guarda tus favoritos.</p><a class="store-text-link" href="#catalogo">Explorar productos →</a></article><article><span>02</span><h3>Arma tu carrito</h3><p>Elige cantidades y revisa el total antes de completar tus datos de entrega.</p><button class="store-text-link" id="storeHowCart" type="button">Abrir mi carrito →</button></article><article><span>03</span><h3>Sigue tu pedido</h3><p>Al registrar tu compra, consulta su estado desde este mismo navegador.</p><button class="store-text-link" id="storeHowOrders" type="button">Ver mis pedidos →</button></article></div></section>
+  <section class="section store-help"><div class="store-help-copy"><p class="eyebrow">TE ACOMPAÑAMOS A ELEGIR</p><h2>Tu próxima pregunta<br>también tiene un lugar aquí.</h2><p>Resuelve tus dudas en el chat o envía una consulta al equipo de Servicom Group.</p><button class="primary-btn" type="button" data-open-support>Hablemos de tu próximo equipo <span aria-hidden="true"><svg class="store-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M6 18 18 6M6 6h12v12"/></svg></span></button></div><div class="store-faq"><details><summary>¿Necesito una cuenta para comprar?</summary><p>No. Agrega tus productos al carrito, completa los datos de entrega y continúa con la compra de demostración.</p></details><details><summary>¿Cómo consulto el estado de mi pedido?</summary><p>Abre Mis pedidos desde el navegador donde realizaste la compra. Verás su seguimiento y podrás comprar de nuevo.</p></details><details><summary>¿Cómo funciona el envío?</summary><p>El carrito indica envío prioritario gratis desde <span data-shipping-threshold>S/ 150.00</span>. Confirma con el equipo la cobertura, el plazo y cualquier costo aplicable a tu dirección.</p></details><details><summary>¿El pago realiza un cargo real?</summary><p>Esta tienda funciona como demostración: el pago y el voucher son simulados. No uses datos de una tarjeta real.</p></details></div></section>
 </main>
 
 <div id="drawerBackdrop" class="backdrop hidden"></div>
@@ -109,7 +76,7 @@
   </section>
   <button id="supportToggle" class="support-toggle" type="button" aria-expanded="false" aria-controls="supportPanel"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 11.5a8 8 0 0 1-8 8H5l-4 3 1.5-6A8 8 0 1 1 20 11.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M6 10h8M6 14h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span>¿Necesitas ayuda?</span><b id="supportUnread" class="support-unread" hidden aria-label="Respuesta del equipo">1</b></button>
 </div>
-<footer>Servicom Group · Demo local · El pago y voucher son simulados.</footer>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="../compartido/js/supabase-config.js"></script><script src="../compartido/js/tema.js"></script><script src="../compartido/js/datos.js"></script><script src="../compartido/js/utilidades.js"></script><script src="favoritos/favoritos.js"></script><script src="recientes/recientes.js"></script><script src="carrito/sincronizacion.js"></script><script src="carrito/carrito.js"></script><script src="catalogo/imagenes.js"></script><script src="catalogo/catalogo.js"></script><script src="catalogo/detalle.js"></script><script src="compra/checkout.js"></script><script src="pedidos/pedidos.js"></script><script src="principal.js"></script>
+<footer class="store-footer"><div><a class="brand" href="#inicio"><span class="brand-mark">S</span><span>Servicom Group</span></a><p>Tecnología para darle forma a tus ideas.</p></div><nav aria-label="Enlaces al pie de página"><a href="#catalogo">Catálogo</a><a href="#como-comprar">Cómo comprar</a><a href="../admin/">Administración</a><button type="button" data-open-support>Centro de ayuda <svg class="store-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M6 18 18 6M6 6h12v12"/></svg></button></nav><div class="store-footer-bottom"><span>Servicom Group · Catálogo y pedidos</span><span>Compra de demostración · El pago y voucher son simulados.</span></div></footer>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="../compartido/js/supabase-config.js"></script><script src="../compartido/js/tema.js"></script><script src="../compartido/js/datos.js"></script><script src="../compartido/js/utilidades.js"></script><script src="favoritos/favoritos.js"></script><script src="recientes/recientes.js"></script><script src="carrito/sincronizacion.js"></script><script src="carrito/carrito.js"></script><script src="catalogo/imagenes.js"></script><script src="catalogo/presentacion.js"></script><script src="catalogo/catalogo.js"></script><script src="catalogo/detalle.js"></script><script src="compra/checkout.js"></script><script src="pedidos/pedidos.js"></script><script src="principal.js"></script>
 <script src="../compartido/js/soporte-api.js"></script><script src="soporte/respuestas.js"></script><script src="soporte/chat.js"></script>
 </body></html>
