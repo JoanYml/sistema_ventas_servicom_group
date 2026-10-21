@@ -16,6 +16,7 @@ function toggleFavorite(id){
   if(detailFav && Number(detailFav.dataset.id)===id){
     const active=isFavorite(id);
     detailFav.classList.toggle("active",active);
+    detailFav.setAttribute("aria-pressed",String(active));
     detailFav.textContent=active?"♥ Guardado en favoritos":"♡ Guardar en favoritos";
   }
 }

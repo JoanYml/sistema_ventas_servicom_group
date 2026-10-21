@@ -18,12 +18,14 @@ function editProduct(id){
   form.elements.name.value=p.name;
   form.elements.price.value=p.price;
   form.elements.stock.value=p.stock;
-  form.elements.description.value=p.description||"";
+  const details=splitProductDescription(p.description);
+  form.elements.description.value=details.description;
+  form.elements.specifications.value=details.specifications;
   openProductModal();
 }
 $("#productForm").onsubmit=async e=>{
   e.preventDefault();
-  const form=e.target,f=new FormData(form),editing=editingProductId!==null,name=String(f.get("name")||"").trim(),category=String(f.get("category")||"").trim(),price=Number(f.get("price")),stock=Number(f.get("stock")),description=String(f.get("description")||"").trim(),iconImageFile=f.get("iconImage");
+  const form=e.target,f=new FormData(form),editing=editingProductId!==null,name=String(f.get("name")||"").trim(),category=String(f.get("category")||"").trim(),price=Number(f.get("price")),stock=Number(f.get("stock")),description=composeProductDescription(f.get("description"),f.get("specifications")),iconImageFile=f.get("iconImage");
   if(!name||!category||!Number.isFinite(price)||price<0||!Number.isFinite(stock)||stock<0)return toast("Completa correctamente nombre, categoría, precio y stock");
   const saveButton=$("#saveProductBtn");
   saveButton.disabled=true;saveButton.textContent="Guardando...";

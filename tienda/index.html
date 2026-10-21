@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="../compartido/css/base.css">
 <link rel="stylesheet" href="css/tienda.css">
 <link rel="stylesheet" href="css/escaparate.css">
+<link rel="stylesheet" href="css/producto.css">
 <link rel="stylesheet" href="soporte/chat.css">
 </head>
 <body class="storefront">
@@ -57,7 +58,7 @@
   </div>
 </aside>
 
-<section id="productModal" class="modal hidden"><div class="modal-card product-modal"><button class="close-btn modal-close" data-close="productModal">×</button><div id="productDetail"></div></div></section>
+<section id="productModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="detailProductTitle"><div class="modal-card product-modal"><div id="productDetail"></div></div></section>
 <section id="ordersModal" class="modal hidden"><div class="modal-card wide"><button class="close-btn modal-close" data-close="ordersModal">×</button><p class="eyebrow">SEGUIMIENTO</p><h2>Mis pedidos</h2><div id="ordersList"></div></div></section>
 <section id="checkoutModal" class="modal hidden"><div class="modal-card checkout-card"><button class="close-btn modal-close" data-close="checkoutModal">×</button><div id="checkoutContent"></div></div></section>
 <div id="toast" class="toast"></div>
@@ -75,6 +76,6 @@
   <button id="supportToggle" class="support-toggle" type="button" aria-expanded="false" aria-controls="supportPanel"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 11.5a8 8 0 0 1-8 8H5l-4 3 1.5-6A8 8 0 1 1 20 11.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M6 10h8M6 14h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span>¿Necesitas ayuda?</span><b id="supportUnread" class="support-unread" hidden aria-label="Respuesta del equipo">1</b></button>
 </div>
 <footer class="store-footer"><div class="store-footer-brand"><a class="brand" href="#inicio"><img class="brand-mark" src="../compartido/imagenes/logo-servicom.png" alt="" width="44" height="44"><span>Servicom Group</span></a><p>Computación, periféricos y accesorios<br>para tu hogar y oficina.</p></div><nav aria-label="Enlaces al pie de página"><h3>Tu compra</h3><a href="#catalogo">Catálogo de productos</a><a href="#como-comprar">Cómo comprar</a><button type="button" data-open-orders>Seguimiento de pedidos</button></nav><div class="store-footer-locations"><h3>Nuestras sucursales</h3><p>Chimbote</p><p>Nuevo Chimbote</p><button type="button" data-open-support>Consultar con un encargado →</button></div><div class="store-footer-bottom"><span>Servicom Group · Catálogo y pedidos</span><span>Compra de demostración. El pago y el voucher son simulados.</span><a href="../admin/">Administración</a></div></footer>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="../compartido/js/supabase-config.js"></script><script src="../compartido/js/tema.js"></script><script src="../compartido/js/datos.js"></script><script src="../compartido/js/utilidades.js"></script><script src="favoritos/favoritos.js"></script><script src="recientes/recientes.js"></script><script src="carrito/sincronizacion.js"></script><script src="carrito/carrito.js"></script><script src="catalogo/imagenes.js"></script><script src="catalogo/presentacion.js"></script><script src="catalogo/catalogo.js"></script><script src="catalogo/detalle.js"></script><script src="compra/checkout.js"></script><script src="pedidos/pedidos.js"></script><script src="principal.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="../compartido/js/supabase-config.js"></script><script src="../compartido/js/tema.js"></script><script src="../compartido/js/datos.js"></script><script src="../compartido/js/utilidades.js"></script><script src="../compartido/js/producto-detalles.js"></script><script src="favoritos/favoritos.js"></script><script src="recientes/recientes.js"></script><script src="carrito/sincronizacion.js"></script><script src="carrito/carrito.js"></script><script src="catalogo/imagenes.js"></script><script src="catalogo/presentacion.js"></script><script src="catalogo/catalogo.js"></script><script src="catalogo/detalle.js"></script><script src="compra/checkout.js"></script><script src="pedidos/pedidos.js"></script><script src="principal.js"></script>
 <script src="../compartido/js/soporte-api.js"></script><script src="soporte/respuestas.js"></script><script src="soporte/chat.js"></script>
 </body></html>

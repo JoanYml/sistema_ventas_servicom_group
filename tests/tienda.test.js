@@ -2,7 +2,7 @@ const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const vm=require('node:vm'),fs=require('node:fs');
 const c=vm.createContext({isFavorite:()=>false});
-for(const file of ['compartido/js/utilidades.js','tienda/catalogo/imagenes.js','tienda/catalogo/presentacion.js','tienda/catalogo/catalogo.js'])vm.runInContext(fs.readFileSync(require.resolve('../'+file),'utf8'),c);
+for(const file of ['compartido/js/utilidades.js','compartido/js/producto-detalles.js','tienda/catalogo/imagenes.js','tienda/catalogo/presentacion.js','tienda/catalogo/catalogo.js'])vm.runInContext(fs.readFileSync(require.resolve('../'+file),'utf8'),c);
 const products=[
   {id:1,name:'Teclado mecánico',category:'Periféricos',description:'Para trabajar',price:100,stock:0,active:true},
   {id:2,name:'Laptop Lenovo',category:'Laptops',description:'Equipo para estudiar',price:1800,stock:5,active:true},

@@ -106,7 +106,6 @@
 .detail-layout{display:grid;grid-template-columns:260px 1fr;gap:30px}
 .detail-image{height:400px;min-height:400px;border-radius:var(--r-lg);background:linear-gradient(155deg,var(--brand-soft),#f4f7ff);display:flex;align-items:center;justify-content:center;overflow:hidden;font-size:90px}
 .detail-info{position:relative}
-.detail-info .fav-btn{position:static;box-shadow:none;background:var(--surface-2);margin-bottom:8px}
 .detail-info h2{font-size:27px;margin:2px 0 8px;color:var(--ink)}
 .detail-info .description{color:var(--muted);line-height:1.7;font-size:14.5px}
 .detail-price{font-family:var(--font-mono);font-size:29px;font-weight:700;color:var(--ink);margin:18px 0 6px}
