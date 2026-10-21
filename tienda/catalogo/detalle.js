@@ -2,7 +2,7 @@ async function detailCarousel(p){
   const refs=Array.isArray(p.detailImageRefs)&&p.detailImageRefs.length?p.detailImageRefs.filter(Boolean):(Array.isArray(p.detailImages)&&p.detailImages.length?p.detailImages.filter(Boolean):(imageRef(p,"detail")?[imageRef(p,"detail")]:[]));
   const images=[];
   for(const ref of refs){const src=await resolveImageRef(ref);if(src)images.push(src)}
-  if(!images.length)return `<div class="detail-image-placeholder"><span class="store-art-wrap">${storeDeviceArt(p)}<small>Ilustración referencial</small></span></div>`;
+  if(!images.length)return `<div class="detail-image-placeholder"><span class="store-art-wrap">${storeCategoryIcon(p.category||"Productos")}<small>Imagen no disponible</small></span></div>`;
   return `<div class="detail-carousel"><div class="detail-carousel-main"><img id="detailCarouselImage" class="detail-img" src="${images[0]}" alt="${p.name}">${images.length>1?`<button id="detailPrev" class="carousel-arrow prev" aria-label="Imagen anterior">‹</button><button id="detailNext" class="carousel-arrow next" aria-label="Siguiente imagen">›</button>`:""}</div>${images.length>1?`<div class="carousel-dots">${images.map((_,i)=>`<button type="button" class="carousel-dot ${i===0?"active":""}" data-index="${i}" aria-label="Ver imagen ${i+1}"></button>`).join("")}</div>`:""}</div>`;
 }
 async function openProduct(id){

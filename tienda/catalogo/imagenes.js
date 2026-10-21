@@ -13,8 +13,9 @@ function productImage(p,cls="",mode="detail"){
 async function hydrateImages(root=document){
   const imgs=[...root.querySelectorAll("img[data-image-ref]")];
   await Promise.all(imgs.map(async img=>{
-    img.onerror=()=>img.replaceWith(document.createTextNode("📦"));
-    try{const src=await resolveImageRef(img.dataset.imageRef);if(src)img.src=src;else img.replaceWith(document.createTextNode("📦"));}
-    catch(err){console.warn("No se pudo cargar una imagen:",err);img.replaceWith(document.createTextNode("📦"));}
+    const fallback=()=>{const placeholder=document.createElement("span");placeholder.className="store-art-wrap";placeholder.innerHTML=storeCategoryIcon(img.alt||"Productos")+'<small>Imagen no disponible</small>';img.replaceWith(placeholder)};
+    img.onerror=fallback;
+    try{const src=await resolveImageRef(img.dataset.imageRef);if(src)img.src=src;else fallback();}
+    catch(err){console.warn("No se pudo cargar una imagen:",err);fallback();}
   }));
 }

@@ -36,5 +36,5 @@ test('las tarjetas escapan los textos y permiten consultar productos agotados',(
   assert(!html.includes('<img src=x'));assert(!html.includes('<script>'));assert(html.includes('&lt;img'));
   assert.match(html,/quick-add-btn[^>]*disabled/);
   assert.match(html,/store-product-details[^>]*>Ver detalles/);
-  assert.match(html,/Ilustración referencial/);
+  assert.match(html,/Imagen no disponible/);
 });
