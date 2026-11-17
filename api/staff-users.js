@@ -21,21 +21,29 @@ function createHandler({fetcher=globalThis.fetch,env=process.env}={}){
    if(!['GET','POST'].includes(req.method)){res.setHeader('Allow','GET, POST');throw new APIError(405,'METHOD_NOT_ALLOWED','Método no permitido.')}
    const authorization=req.headers.authorization||'';
    if(!/^Bearer [^\s]+$/i.test(authorization))throw new APIError(401,'UNAUTHORIZED','Inicia sesión para gestionar cuentas.');
-   const url=env.SUPABASE_URL,secret=env.SUPABASE_SERVICE_ROLE_KEY;
-   if(!url||!secret)throw new APIError(503,'SETUP_REQUIRED','La creación de cuentas aún no está activada en el servidor.');
-   let parsed;try{parsed=new URL(url)}catch{throw new APIError(503,'SETUP_REQUIRED','Revisa la configuración del servidor.')}
-   if(parsed.protocol!=='https:'||parsed.username||parsed.password||parsed.search||parsed.hash)throw new APIError(503,'SETUP_REQUIRED','Revisa la configuración del servidor.');
-   const base=url.replace(/\/$/,'');
+   const url=(env.SUPABASE_URL||'').trim(),secret=(env.SUPABASE_SERVICE_ROLE_KEY||'').trim();
+   const missing=[!url&&'SUPABASE_URL',!secret&&'SUPABASE_SERVICE_ROLE_KEY'].filter(Boolean);
+   if(missing.length)throw new APIError(503,'SETUP_REQUIRED','Falta configurar '+missing.join(' y ')+' en el servidor. Guárdala en el entorno Production de Vercel y vuelve a desplegar.');
+   const urlError='Revisa SUPABASE_URL en Vercel: debe ser la URL base HTTPS del mismo proyecto de Supabase que usa la tienda, sin /rest/v1 ni otras rutas. Después vuelve a desplegar.';
+   let parsed;try{parsed=new URL(url)}catch{throw new APIError(503,'SETUP_REQUIRED',urlError)}
+   if(parsed.protocol!=='https:'||parsed.username||parsed.password||parsed.search||parsed.hash||parsed.pathname!=='/')throw new APIError(503,'SETUP_REQUIRED',urlError);
+   const base=parsed.origin;
    const request=async(path,{method='GET',data,user=false}={})=>{
     let result;try{result=await fetcher(base+path,{method,headers:{apikey:secret,Authorization:user?authorization:'Bearer '+secret,'Content-Type':'application/json'},...(data===undefined?{}:{body:JSON.stringify(data)}),signal:AbortSignal.timeout(15000)})}catch{throw new APIError(502,'UPSTREAM_UNAVAILABLE','No se pudo confirmar la operación. Actualiza el listado antes de reintentar.')}
     let json;try{json=await result.json()}catch{json={}}return {ok:result.ok,status:result.status,data:json};
    };
    const rpc=async(name,args)=>request('/rest/v1/rpc/'+name,{method:'POST',data:args});
    const identity=await request('/auth/v1/user',{user:true});
-   if(!identity.ok||!UUID.test(identity.data.id||''))throw new APIError(401,'UNAUTHORIZED','La sesión venció. Inicia sesión de nuevo.');
+   if(identity.data?.message==='Invalid API key')throw new APIError(503,'SETUP_REQUIRED','Supabase rechazó la clave del servidor. Revisa SUPABASE_SERVICE_ROLE_KEY y que pertenezca al mismo proyecto que SUPABASE_URL; después vuelve a desplegar.');
+   if(!identity.ok){
+    if(identity.status===401||identity.status===403)throw new APIError(401,'UNAUTHORIZED','Supabase rechazó la sesión. Cierra sesión y vuelve a entrar. Si continúa, comprueba que SUPABASE_URL en Vercel corresponda al mismo proyecto que usa la tienda.');
+    throw new APIError(502,'UPSTREAM_UNAVAILABLE','No se pudo validar la sesión en Supabase. Revisa SUPABASE_URL en Vercel y la disponibilidad del proyecto.');
+   }
+   if(!UUID.test(identity.data?.id||''))throw new APIError(502,'UPSTREAM_UNAVAILABLE','SUPABASE_URL no devolvió una respuesta válida de Supabase Auth. Revisa la URL del proyecto en Vercel.');
    actor=identity.data.id;
    const role=await request('/rest/v1/rpc/get_my_staff_role',{method:'POST',data:{},user:true});
-   if(!role.ok||role.data!=='admin')throw new APIError(403,'FORBIDDEN','Sólo el administrador puede gestionar cuentas.');
+   if(!role.ok)throw new APIError(503,'SETUP_REQUIRED','No se pudo comprobar el rol en Supabase. Revisa la instalación de roles.sql y usuarios_auditoria.sql en ese mismo proyecto.');
+   if(role.data!=='admin')throw new APIError(403,'FORBIDDEN','Sólo el administrador puede gestionar cuentas.');
    if(req.method==='GET')return respond(res,200,{ready:true});
    if(!(req.headers['content-type']||'').toLowerCase().startsWith('application/json'))throw new APIError(415,'INVALID_BODY','Usa un formulario JSON.');
    body=await readBody(req);validate(body);

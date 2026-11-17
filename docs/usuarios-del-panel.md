@@ -13,6 +13,19 @@ El dueño dispone de **Usuarios** en el menú administrativo. Puede crear cuenta
 
 Nunca pegues la clave privada en `compartido/js/supabase-config.js`, en el navegador, en GitHub o en un mensaje. Esa configuración del frontend conserva exclusivamente la URL y la clave publicable. Las claves del servidor no se devuelven al navegador.
 
+### Si Crear usuario sigue deshabilitado
+
+Pulsa **Actualizar** en Usuarios. El aviso muestra el motivo de la comprobación del servidor:
+
+- **Falta configurar una variable**: guárdala con el nombre exacto indicado en Production y vuelve a desplegar. Las variables nuevas no se aplican a un despliegue ya publicado.
+- **No se encontró `/api/staff-users`** o no respondió como una función: despliega la última versión de `main` y comprueba que el dominio apunte a ese despliegue. Revisa que la configuración de salida de Vercel incluya la función de `api/staff-users.js`.
+- **Supabase rechazó la clave**: utiliza la clave privada `service_role` del mismo proyecto de Supabase. Guarda el cambio y vuelve a desplegar.
+- **Supabase rechazó la sesión**: cierra sesión y entra otra vez. Si continúa, comprueba que la URL configurada en Vercel sea la del proyecto que utiliza la tienda.
+- **URL no válida**: usa la URL base del proyecto, sin `/rest/v1`, sin rutas adicionales ni parámetros.
+- **No se pudo comprobar el rol**: revisa la instalación de los SQL en el mismo proyecto y entra con un administrador activo.
+
+El aviso permite compartir el motivo sin copiar claves privadas ni sesiones. Consultar el listado y cambiar permisos puede funcionar aunque la función de creación aún no esté configurada.
+
 En una instalación nueva, el orden es:
 
 `schema.sql` → `soporte.sql` → `gestion_empresarial.sql` → `roles.sql` → `ventas_contabilidad.sql` → **`usuarios_auditoria.sql` al final**.

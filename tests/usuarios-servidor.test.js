@@ -3,7 +3,7 @@ const {createHandler}=require('../api/staff-users.js');
 const OWNER='11111111-1111-4111-8111-111111111111',USER='22222222-2222-4222-8222-222222222222',REQUEST='33333333-3333-4333-8333-333333333333';
 const env={SUPABASE_URL:'https://example.supabase.co',SUPABASE_SERVICE_ROLE_KEY:'server-secret-test'};
 const valid={action:'create',request_id:REQUEST,email:'nuevo@example.com',full_name:'Ana Contable',role:'accountant',password:'Temporal_segura_12345'};
-function setup(overrides={}){
+function setup(overrides={},serverEnv=env){
  const calls=[];
  const fetcher=async(url,options)=>{
   const path=new URL(url).pathname;const call={path,...options,data:options.body?JSON.parse(options.body):null};calls.push(call);
@@ -11,7 +11,7 @@ function setup(overrides={}){
   const data=path==='/auth/v1/user'?{id:OWNER}:path.endsWith('/get_my_staff_role')?'admin':path.endsWith('/staff_begin_auth_operation')?{fresh:true,status:'pending'}:path==='/auth/v1/admin/users'?{id:USER}:null;
   return Response.json(data);
  };
- const handler=createHandler({env,fetcher});
+ const handler=createHandler({env:serverEnv,fetcher});
  async function run(body=valid,method='POST',headers={authorization:'Bearer owner-session','content-type':'application/json'}){
   let status,result;const extra={};const req={method,headers,body};const res={setHeader(k,v){extra[k]=v},writeHead(s,h){status=s;Object.assign(extra,h)},end(text){result=JSON.parse(text)}};
   await handler(req,res);return {status,body:result,headers:extra};
@@ -54,5 +54,27 @@ test('el restablecimiento usa el usuario indicado sin guardar su contraseña en 
 });
 test('la disponibilidad se comprueba sin entregar la clave y la configuración ausente es explícita',async()=>{
  const x=setup();assert.deepEqual((await x.run(undefined,'GET')).body,{ready:true});assert.equal(x.calls.length,2);
- let status,body;await createHandler({env:{},fetcher:()=>{throw Error('No debe llamar')}})({method:'GET',headers:{authorization:'Bearer session'}},{writeHead(s){status=s},end(v){body=JSON.parse(v)}});assert.equal(status,503);assert.equal(body.error.code,'SETUP_REQUIRED');
+ for(const serverEnv of [{},{SUPABASE_URL:env.SUPABASE_URL},{SUPABASE_SERVICE_ROLE_KEY:env.SUPABASE_SERVICE_ROLE_KEY}]){
+  const missing=setup({},serverEnv),result=await missing.run(undefined,'GET');assert.equal(result.status,503);assert.equal(result.body.error.code,'SETUP_REQUIRED');assert.equal(missing.calls.length,0);
+  for(const key of ['SUPABASE_URL','SUPABASE_SERVICE_ROLE_KEY'])assert.equal(result.body.error.message.includes(key),!serverEnv[key]);
+  assert(!JSON.stringify(result).includes(env.SUPABASE_SERVICE_ROLE_KEY));
+ }
+});
+test('la configuración admite espacios al copiar y rechaza URLs con rutas antes de contactar con Supabase',async()=>{
+ const x=setup({},{SUPABASE_URL:'  https://example.supabase.co/\n',SUPABASE_SERVICE_ROLE_KEY:' server-secret-test\n'});assert.equal((await x.run(undefined,'GET')).status,200);assert(x.calls.every(c=>c.headers.apikey==='server-secret-test'));
+ for(const url of ['https://example.supabase.co/rest/v1','http://example.supabase.co','https://name:pass@example.supabase.co/','https://example.supabase.co/?key=private','no-es-url']){
+  const invalid=setup({},{...env,SUPABASE_URL:url}),result=await invalid.run(undefined,'GET');assert.equal(result.status,503);assert.match(result.body.error.message,/SUPABASE_URL/);assert.equal(invalid.calls.length,0);assert(!JSON.stringify(result).includes(url));
+ }
+});
+test('el diagnóstico distingue clave inválida, sesión rechazada, rol denegado y servicio no disponible',async()=>{
+ for(const [endpoint,response,status,code,pattern] of [
+  ['/auth/v1/user',()=>Response.json({message:'Invalid API key'},{status:401}),503,'SETUP_REQUIRED',/SUPABASE_SERVICE_ROLE_KEY/],
+  ['/auth/v1/user',()=>Response.json({message:'Expired'},{status:401}),401,'UNAUTHORIZED',/Cierra sesión/],
+  ['/auth/v1/user',()=>Response.json({},{status:503}),502,'UPSTREAM_UNAVAILABLE',/disponibilidad/],
+  ['/auth/v1/user',()=>new Response('<html>Otro servicio</html>'),502,'UPSTREAM_UNAVAILABLE',/SUPABASE_URL/],
+  ['/rest/v1/rpc/get_my_staff_role',()=>Response.json({code:'PGRST202'},{status:404}),503,'SETUP_REQUIRED',/roles.sql/],
+  ['/rest/v1/rpc/get_my_staff_role',()=>Response.json('employee'),403,'FORBIDDEN',/administrador/]
+ ]){
+  const x=setup({[endpoint]:response}),result=await x.run(undefined,'GET');assert.equal(result.status,status);assert.equal(result.body.error.code,code);assert.match(result.body.error.message,pattern);assert(!x.calls.some(c=>c.path.includes('/admin/users')));assert(!JSON.stringify(result).includes(env.SUPABASE_SERVICE_ROLE_KEY));
+ }
 });

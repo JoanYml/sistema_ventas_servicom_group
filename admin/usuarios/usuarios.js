@@ -7,16 +7,16 @@ async function usersServerRequest(body=null){
  const {data:{session}}=await requireClient().auth.getSession();if(!session?.access_token)throw {code:'P0001',message:'La sesión venció. Inicia sesión de nuevo.'};
  let response;
  try{response=await fetch('/api/staff-users',{method:body?'POST':'GET',headers:{Authorization:'Bearer '+session.access_token,...(body?{'Content-Type':'application/json'}:{})},...(body?{body:JSON.stringify(body)}:{}),signal:AbortSignal.timeout(25000)})}
- catch{throw {code:'P0001',apiCode:'NETWORK_ERROR',message:'No se pudo confirmar la operación. Actualiza el listado antes de reintentar.'}}
+ catch{throw {code:'P0001',apiCode:'NETWORK_ERROR',message:body?'No se pudo confirmar la operación. Actualiza el listado antes de reintentar.':'No se pudo conectar con el servidor de cuentas. Comprueba la conexión y pulsa Actualizar.'}}
  let result;try{result=await response.json()}catch{result={}}
- if(!response.ok)throw {code:'P0001',apiCode:result.error?.code||'SERVER_ERROR',message:result.error?.message||'No se pudo gestionar la cuenta. Comprueba la activación del servidor.'};
- if(body?result.ok!==true||typeof result.user_id!=='string':result.ready!==true)throw {code:'P0001',apiCode:body?'UPSTREAM_UNAVAILABLE':'SETUP_REQUIRED',message:'El servidor no confirmó la operación. Actualiza el listado y revisa la activación del servicio.'};
+ if(!response.ok)throw {code:'P0001',apiCode:result?.error?.code||'SERVER_ERROR',httpStatus:response.status,message:result?.error?.message||(response.status===404?'No se encontró /api/staff-users. En Vercel, despliega la última versión de main y comprueba que el dominio use ese despliegue.':response.status===401?'El servidor rechazó la sesión. Cierra sesión y vuelve a entrar.':response.status===403?'El servidor no permite gestionar cuentas con esta sesión. Entra como administrador.':'El servidor de cuentas devolvió un error HTTP '+response.status+'. Revisa los registros de la función /api/staff-users en Vercel.')};
+ if(body?result?.ok!==true||typeof result?.user_id!=='string':result?.ready!==true)throw {code:'P0001',apiCode:body?'UPSTREAM_UNAVAILABLE':'SETUP_REQUIRED',message:body?'El servidor no confirmó la operación. Actualiza el listado antes de reintentar.':'La ruta /api/staff-users no respondió como una función de cuentas. Revisa el despliegue de Vercel y que la configuración de salida incluya la función.'};
  return result;
 }
 async function recordStaffSession(action){try{await Promise.race([requireClient().rpc('staff_record_session',{p_action:action}),new Promise(resolve=>setTimeout(resolve,1500))])}catch{/* Una incidencia de telemetría no bloquea entrar o salir. */}}
 async function loadUsers(force=false){
  if(!staffCan('usuarios')||(usersLoading&&!force))return false;
- const version=++usersLoadVersion;usersLoading=true;$('#usersFeedback').textContent='Cargando cuentas…';
+ const version=++usersLoadVersion;usersLoading=true;usersServerReady=false;$('#usersNew').disabled=true;$('#usersResetPassword').disabled=true;$('#usersFeedback').textContent='Cargando cuentas…';
  try{
   const result=await managementRPC('staff_list_users',{p_search:$('#usersSearch').value.trim(),p_role:$('#usersRole').value,p_status:$('#usersStatus').value,p_limit:USERS_PAGE_SIZE,p_offset:(usersPage-1)*USERS_PAGE_SIZE});
   if(version!==usersLoadVersion||!staffCan('usuarios'))return false;
@@ -30,7 +30,7 @@ async function loadUsers(force=false){
    if(usersSelected?.id===selectedID)usersSelected=selected||null;
   }
   renderUsers(result);$('#usersFeedback').textContent='Cuentas de Supabase y permisos actuales. El historial conserva el rol que tenía cada persona al realizar la acción.';
-  try{await usersServerRequest();if(version===usersLoadVersion)usersServerReady=true}catch{if(version===usersLoadVersion)usersServerReady=false}
+  try{await usersServerRequest();if(version===usersLoadVersion)usersServerReady=true}catch(error){if(version===usersLoadVersion){usersServerReady=false;$('#usersServerReason').textContent=usersError(error)}}
   if(version!==usersLoadVersion)return false;
   $('#usersNew').disabled=!usersServerReady;$('#usersServerNotice').hidden=usersServerReady;
   await loadUserActivity();return true;
