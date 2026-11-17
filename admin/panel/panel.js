@@ -97,9 +97,3 @@ $("#dashboardExport").onclick=()=>{
   const url=URL.createObjectURL(new Blob([dashboardCSV(m)],{type:"text/csv;charset=utf-8;"})),a=document.createElement("a");
   a.href=url;a.download=`${m.aggregated?"resumen-ventas":"pedidos"}-${m.start}-${m.today}.csv`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
 };
-$("#resetData").onclick=async()=>{
-  if(!staffCan('productos'))return;
-  if(!confirm("Esto BORRARÁ todos los productos y pedidos de la base de datos y cargará los 10 productos demo. ¿Continuar?"))return;
-  try{await apiResetDemo();await refreshDB();dashboardDataUpdated();render();toast("Datos restaurados")}
-  catch(err){console.error(err);toast("No se pudieron restaurar los datos")}
-};

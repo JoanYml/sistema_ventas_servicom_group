@@ -43,16 +43,8 @@ La pestaña **Compras** reúne los registros manuales, incluido su detalle e his
 
 Ingreso general puede cerrarse y reabrirse por mes, de forma independiente a las dos sucursales. Si llega un pedido durante un mes cerrado, el pedido y su stock se conservan; el asiento queda **Pendiente** con la incidencia indicada. Después de reabrir el período, Actualizar o **Reintentar pendientes** completa el registro una sola vez. El módulo también reintenta hasta 100 pendientes al cargar los datos, cada 15 segundos mientras está abierto. El botón procesa hasta 500 por vez.
 
-Los errores al generar un asiento quedan registrados de forma duradera; no se muestran como ventas contabilizadas. El historial de pedidos con registro contable se protege contra cambios de fecha/importe o eliminación, incluida la restauración destructiva de datos demo.
+Los errores al generar un asiento quedan registrados de forma duradera; no se muestran como ventas contabilizadas. El historial de pedidos con registro contable se protege contra cambios de fecha/importe o eliminación.
 
-## Permisos y pruebas
+## Permisos
 
 El dueño y el contable pueden consultar ingresos, registrar compras y gestionar los períodos. Sólo el dueño cambia la cuenta de destino automática. El empleado conserva únicamente Pedidos y Atención. La creación anónima de un pedido puede generar su asiento mediante un trigger privado, sin conceder acceso público a Contabilidad.
-
-Las pruebas opcionales usan PostgreSQL local, sin escrituras remotas:
-
-```bash
-SERVICOM_PGLITE_PATH=/ruta/a/@electric-sql/pglite node scripts/probar-ventas-contabilidad-sql.cjs
-# Con npm run dev, Playwright y Chromium disponibles:
-SERVICOM_PGLITE_PATH=/ruta/a/@electric-sql/pglite node scripts/probar-ventas-contabilidad-navegador.cjs
-```

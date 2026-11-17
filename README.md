@@ -1,39 +1,47 @@
-# Sistema de ventas — Servicom Group
+# Servicom Group
 
-Web para catálogo, carrito, administración y pedidos, conectada a **Supabase** (PostgreSQL + Auth + Storage). Productos, pedidos e imágenes viven en la base de datos; en el navegador solo quedan el carrito, favoritos y preferencias.
+Sistema web de venta de productos tecnológicos y gestión administrativa. La tienda y el panel están desarrollados con HTML, CSS y JavaScript. Supabase proporciona la base de datos PostgreSQL, la autenticación y el almacenamiento de imágenes; Vercel aloja la página y la función de administración de cuentas.
 
-## Conectar con Supabase (una sola vez)
+## Funciones
 
-1. **Crear las tablas:** Supabase → *SQL Editor* → *New query*. Ejecuta completos, en orden: `supabase/schema.sql`, `supabase/soporte.sql`, `supabase/gestion_empresarial.sql`, `supabase/roles.sql`, `supabase/ventas_contabilidad.sql` y **`supabase/usuarios_auditoria.sql` al final**.
-2. **Crear el administrador:** *Authentication → Users → Add user → Create new user* (correo y contraseña, marca *Auto Confirm User*). Luego, en el *SQL Editor*:
-   ```sql
-   select public.assign_staff_role('TU_CORREO@ejemplo.com', 'admin');
-   ```
-3. **Cerrar registros públicos:** *Authentication → Sign In / Providers* → desactiva *Allow new users to sign up*.
-4. **Pegar las llaves:** en `compartido/js/supabase-config.js` pon la *Project URL* y la clave **publishable** (o *anon*) de *Project Settings → API Keys*. Nunca pongas aquí la clave `secret` / `service_role`.
-5. Ejecuta `npm run dev` y abre `/admin/` para iniciar sesión.
+- Tienda con búsqueda, categorías, filtros, favoritos y detalle de productos.
+- Carrito con cantidades y avisos de cambios de precio y disponibilidad.
+- Registro de pedidos con datos de entrega, pago simulado y seguimiento.
+- Chat de preguntas frecuentes con respuestas programadas y atención de un encargado.
+- Dashboard con ventas, pedidos, ticket promedio, gráficos e inventario.
+- Gestión de productos, pedidos, empleados, usuarios y permisos.
+- Contabilidad con ingresos automáticos por ventas, compras manuales, reportes y cierres mensuales.
+- Historial de acciones del equipo, con búsqueda y filtros por usuario, rol y apartado.
+- Diseño adaptable a celulares y modo claro u oscuro.
 
-La seguridad no depende de esconder la clave publishable: la protegen las políticas RLS, los privilegios de columnas y las funciones del servidor. El público lee productos activos y compra mediante `create_order`; los roles del equipo controlan el acceso administrativo.
+El pago y las constancias de compra son simulados. No se realizan cargos bancarios ni se emiten comprobantes tributarios.
 
-## Roles del equipo
+## Instalación de Supabase
 
-Se inicia sesión con Supabase Auth y el rol se guarda en `public.user_roles`: **admin** accede a todos los apartados, incluido Usuarios; **employee**, sólo a Pedidos y Atención; **accountant**, sólo a Dashboard y Contabilidad. Los dueños existentes de `public.admins` conservan su acceso al ejecutar `roles.sql`. Una cuenta de Auth sin rol activo no accede al panel.
+En el SQL Editor del proyecto, ejecuta completos los archivos en este orden:
 
-Después de crear las cuentas, asigna sus roles desde SQL Editor con `public.assign_staff_role('correo@empresa.com', 'employee')` o `'accountant'`. Consulta la [guía de usuarios, permisos y revocación](docs/usuarios-y-roles.md). Si vuelves a ejecutar otros esquemas, ejecuta después `roles.sql`, `ventas_contabilidad.sql` y `usuarios_auditoria.sql` para reinstalar los permisos y la integración actuales.
+1. [schema.sql](supabase/schema.sql): productos, pedidos, imágenes y catálogo inicial.
+2. [soporte.sql](supabase/soporte.sql): conversaciones y atención al cliente.
+3. [gestion_empresarial.sql](supabase/gestion_empresarial.sql): empleados, sucursales y contabilidad.
+4. [roles.sql](supabase/roles.sql): permisos del equipo.
+5. [ventas_contabilidad.sql](supabase/ventas_contabilidad.sql): ingresos automáticos de pedidos y compras manuales.
+6. [usuarios_auditoria.sql](supabase/usuarios_auditoria.sql): administración de cuentas e historial de acciones.
 
-El dashboard contable usa datos agregados, sin descargar datos personales ni llaves de pedidos. La web oculta las acciones restringidas y Supabase valida los permisos también ante solicitudes directas.
+Si reinstalas un módulo anterior, vuelve a ejecutar los posteriores en el mismo orden. Subir archivos a GitHub o desplegar en Vercel no ejecuta estos SQL.
 
-## Usuarios del panel y actividad del equipo
+En **Authentication → Users**, crea la cuenta del dueño y asigna su rol desde el SQL Editor:
 
-El dueño puede crear cuentas, buscar usuarios por nombre/correo, filtrar por rol y acceso, editar permisos, desactivar/reactivar y restablecer contraseñas. «Ver actividad» muestra las acciones de una persona; «Cambios en su cuenta» muestra los cambios administrativos que recibió. Los logs se filtran por fechas, apartado y rol en el momento de la acción, con paginación en el servidor. Empleados y contables no pueden acceder a este apartado ni consultar los logs.
+```sql
+select public.assign_staff_role('dueño@tuempresa.com', 'admin');
+```
 
-Activa **`supabase/usuarios_auditoria.sql` después de ventas_contabilidad.sql**. Para crear cuentas y restablecer contraseñas, configura en **Vercel** las variables privadas **`SUPABASE_URL`** y **`SUPABASE_SERVICE_ROLE_KEY`**, y vuelve a desplegar. Nunca pongas la clave privada en la configuración pública del navegador. La función Node.js `/api/staff-users` valida la sesión y el rol de dueño antes de utilizar la API administrativa de Supabase Auth.
+Desactiva el registro público de nuevas cuentas en la configuración de Supabase Auth. Las cuentas del equipo se administran desde el panel.
 
-El historial registra desde la activación cambios de productos, estados de pedidos, atención, empleados, contabilidad y accesos. No guarda contraseñas, tokens privados ni conversaciones completas; los procesos automáticos se identifican como Sistema. No se reconstruyen eventos que no se registraron antes. Las solicitudes de cuentas se conservan para evitar repetir operaciones cuyo resultado no se pudo confirmar. Consulta la [guía de activación, uso y límites de la auditoría](docs/usuarios-del-panel.md).
+En [compartido/js/supabase-config.js](compartido/js/supabase-config.js), configura la URL del proyecto y su clave pública `publishable` o `anon`. La clave privada `service_role` se configura exclusivamente en el servidor.
 
-## Cómo ejecutarlo
+## Ejecutar en local
 
-Requiere Node.js 20 o superior. No hay dependencias que instalar.
+Se requiere Node.js 20 o superior. El servidor utiliza las bibliotecas incluidas en Node.js y no necesita dependencias adicionales.
 
 ```bash
 npm run dev
@@ -42,419 +50,75 @@ npm run dev
 - Tienda: http://localhost:5173/tienda/
 - Administración: http://localhost:5173/admin/
 
-Si el puerto está ocupado: `npm run dev -- --port 3000`.
-El servidor recarga la página automáticamente cuando guardas un archivo.
-
-## Dashboard de administración
-
-El dashboard utiliza los productos y pedidos de Supabase y permite consultar:
-
-- Ventas, cantidad de pedidos y ticket promedio de los últimos 7, 30 o 90 días, comparados con el período anterior de igual duración. Las fechas se calculan en `America/Lima`.
-- Gráfico de ventas diarias, con importes y cantidad de pedidos en una tabla desplegable; gráfico circular de estados de pedidos; barras de unidades disponibles por categoría.
-- Los cinco pedidos más recientes y los cinco productos más vendidos del período. El ranking conserva los precios y nombres registrados en los pedidos, incluso si después cambia o se elimina el producto.
-- Unidades y valor del inventario al precio de venta actual, productos activos, productos agotados o con stock bajo y pedidos pendientes de todo el historial.
-- Accesos para crear productos, editar stock y consultar pedidos; actualización manual y exportación CSV de los pedidos del período. La restauración de datos demo permanece dentro de «Herramientas de demostración» y solicita confirmación.
-
-El inventario no cambia al seleccionar otro período. Los importes corresponden a pedidos con pagos simulados; no representan cobros bancarios verificados. Cuando no existe una base anterior para comparar, se indica sin inventar un porcentaje. La carga administrativa pagina los registros para evitar que el límite de respuesta de Supabase recorte los indicadores.
-
-Para una exposición con más información, ejecuta completo [supabase/ventas_demo.sql](supabase/ventas_demo.sql) en el SQL Editor de Supabase y pulsa Actualizar en el dashboard. Añade 120 ventas ficticias identificadas como `DEMO-VENTA`, sin duplicarlas al repetir la carga ni modificar el stock actual. Los pedidos también generan su ingreso contable general. Consulta la [guía de carga de ventas de demostración](docs/ventas-de-demostracion.md).
-
-### Pruebas
+Para usar otro puerto:
 
 ```bash
-npm test
+npm run dev -- --port 3000
 ```
 
-Las pruebas usan el runner integrado de Node.js, sin dependencias adicionales. Cubren fechas y límites de período, comparaciones, ranking con precios históricos, inventario, estados vacíos, exportación CSV y carga paginada.
-
-## Gestión de pedidos
-
-La sección Pedidos incluye contadores de todo el historial, búsqueda por número de pedido, nombre, correo, DNI o teléfono; filtros combinables de estado y fechas inclusivas de Perú; orden por fecha o importe; y páginas de 10, 25 o 50 registros. La exportación CSV incluye todos los resultados filtrados, no sólo la página visible.
-
-«Ver detalle» muestra datos de contacto y entrega, productos, cantidades, precios históricos, total y seguimiento. Desde allí se puede imprimir una constancia de pedido. La constancia indica que el pago es simulado y no reemplaza una boleta o factura.
-
-Para cambiar el seguimiento, selecciona el nuevo estado y pulsa «Guardar estado». Se solicita confirmación y se comprueba el estado anterior antes de actualizar para evitar sobrescribir cambios de otra sesión. La actualización automática se pausa mientras está abierto el detalle; los filtros y la página se conservan al recargar el listado. No se añaden cancelaciones ni cambios al stock desde esta sección.
-
-`npm test` también cubre búsqueda, filtros de pedidos, límites de fechas, orden, paginación, contadores y la actualización condicionada al estado anterior.
-
-## Empleados y contabilidad
-
-El menú administrativo incluye **Empleados** y **Contabilidad**. Actívalos ejecutando [supabase/gestion_empresarial.sql](supabase/gestion_empresarial.sql) en el SQL Editor de tu proyecto, después del esquema original. Crea las sucursales Chimbote y Nuevo Chimbote; no carga empleados ni operaciones ficticias. Empleados e historial se reservan al dueño; Contabilidad está disponible para el dueño y el contable.
-
-Empleados permite crear y editar fichas, asignarlas a una sucursal, registrar traslados y situaciones, consultar historial, buscar y exportar CSV. Las fichas cargadas directamente en `public.employees` aparecen al abrir el apartado, actualizarlo o en su refresco de 15 segundos. La [guía de activación y carga de empleados](docs/gestion-empresarial.md) detalla columnas, SQL de ejemplo y plantilla CSV.
-
-Contabilidad incluye caja/bancos, ingresos/gastos, transferencias, cuentas por cobrar/pagar y abonos parciales, libro diario con partida doble y reversiones, plan de cuentas, cierre/reapertura mensual por sucursal, reportes y exportaciones. Las ventas de Pedidos se contabilizan automáticamente en Ingreso general, sin sucursal; las compras se registran manualmente por el dueño o el contable. Activa este flujo ejecutando [supabase/ventas_contabilidad.sql](supabase/ventas_contabilidad.sql), después de los roles. Importa los pedidos existentes y los nuevos una sola vez, con fecha y total históricos. Consulta [ventas y compras](docs/ventas-y-compras.md). El checkout continúa con pagos simulados. Es gestión interna; no emite comprobantes SUNAT ni calcula impuestos o planillas. Consulta la guía para registrar aperturas, evitar duplicar documentos y realizar correcciones.
-
-## Chat de la tienda y atención desde administración
-
-La tienda incluye un chat desplegable en la esquina inferior derecha. El asistente responde preguntas frecuentes sobre compras, envíos, pago simulado, productos y seguimiento; funciona con reglas locales, sin servicios de IA ni claves adicionales. Los precios y el stock se consultan en el catálogo disponible. El bot sólo reconoce los pedidos ya autorizados para ese navegador.
-
-Si el cliente necesita ayuda humana, puede revisar y enviar una consulta con su nombre. La consulta llega a **Administración → Atención**, donde el dueño o un empleado puede responder, filtrar consultas abiertas, pendientes o cerradas, y cerrar o reabrir conversaciones. Las respuestas aparecen en el mismo chat, con actualización cada 8 segundos mientras la página está visible. La bandeja conserva los borradores de respuesta durante las actualizaciones.
-
-### Activación en Supabase
-
-Después de tener el esquema principal y el administrador configurados, ejecuta **todo [supabase/soporte.sql](supabase/soporte.sql)** en el SQL Editor del mismo proyecto Supabase. Es una migración aditiva e idempotente: no reemplaza productos, pedidos ni usuarios. No se necesita pegar claves privadas ni cambiar la configuración pública del frontend. Publicar el código en GitHub no ejecuta esta migración. Si ya usas los roles, vuelve a ejecutar `supabase/roles.sql`, `supabase/ventas_contabilidad.sql` y `supabase/usuarios_auditoria.sql` al terminar.
-
-Sin esa migración, las preguntas frecuentes siguen funcionando y la derivación muestra un aviso de que la atención aún no está disponible. Administración indica cómo activar la bandeja; no se simula que una consulta fue enviada.
-
-Las conversaciones humanas se almacenan en Supabase. El navegador conserva únicamente su llave privada en `servicom_support_token`, por lo que el cliente debe volver desde el mismo navegador para consultar las respuestas. No se envía automáticamente el historial de preguntas al bot. Borrar los datos del sitio elimina el acceso del cliente a su conversación; no elimina los mensajes de Supabase. No compartas esa llave. La bandeja no comprueba que haya un encargado conectado ni promete una respuesta inmediata.
-
-Las tablas tienen RLS y los visitantes no pueden leerlas directamente. Las funciones públicas sólo permiten acceder a la conversación correspondiente a la llave privada; las respuestas y cambios de estado requieren rol de dueño o empleado. Cada mensaje admite hasta 1000 caracteres y cada conversación hasta 200 mensajes.
-
-### Pruebas de atención
-
-`npm test` incluye las reglas del bot, aislamiento de pedidos, errores y paginación de la bandeja. Para validar también el SQL y el recorrido completo de navegador con una base PostgreSQL local de prueba:
+El servidor recarga la página al guardar cambios. Crear cuentas y restablecer contraseñas requiere las variables privadas indicadas en la siguiente sección. En local se pueden guardar en `.env.local`, que está excluido de Git, y cargar con Node.js 20.6 o superior:
 
 ```bash
-npm install --prefix /tmp/servicom-support-db --cache /tmp/servicom-npm-cache --no-save --no-package-lock @electric-sql/pglite@0.5.10
-SERVICOM_PGLITE_PATH=/tmp/servicom-support-db/node_modules/@electric-sql/pglite node scripts/probar-soporte-sql.cjs
-# Con npm run dev ya activo, Playwright disponible y Chromium instalado:
-SERVICOM_PGLITE_PATH=/tmp/servicom-support-db/node_modules/@electric-sql/pglite node scripts/probar-soporte-navegador.cjs
+node --env-file=.env.local scripts/servidor-dev.js
 ```
 
-La prueba de navegador usa dos sesiones aisladas y una base PGlite temporal. Intercepta las peticiones a Supabase y no modifica la base remota. Si Playwright o Chromium están en otra ubicación, se pueden indicar con `SERVICOM_PLAYWRIGHT_PATH` y `SERVICOM_CHROMIUM_PATH`.
-
-## Diseño e interacción de la tienda
-
-La tienda usa una cabecera con buscador, accesos a pedidos y carrito, y una barra de categorías generada desde los productos publicados. Buscar desde la cabecera consulta todo el catálogo; las categorías de la barra aplican el filtro y desplazan a los resultados. La portada muestra una selección navegable de hasta seis productos, priorizando los que tienen fotos, sin rotación automática. El catálogo combina búsqueda sin tildes por nombre, categoría o descripción, favoritos y disponibilidad; permite quitar filtros individualmente y alternar entre cuadrícula y lista. La vista elegida se conserva en `servicom_catalog_view`.
-
-`tienda/catalogo/presentacion.js` conecta estas interacciones y `tienda/css/escaparate.css` define el diseño de la tienda: azul marino, superficies planas, tipografía del sistema, precios visibles y botones de compra de ancho completo. Las fotos se cargan desde el catálogo; cuando faltan o fallan aparece un icono neutro con «Imagen no disponible», sin atribuir una fotografía genérica a un modelo. Se pueden cargar desde Administración → Productos. La página incluye preguntas frecuentes, accesos al chat y avisos con reintento cuando falla la carga del catálogo. El diseño adapta los controles a móvil y modo oscuro y respeta la preferencia de movimiento reducido. Los estilos se limitan a la tienda.
-
-La ficha de producto se amplía hasta 1120 px, con galería grande, miniaturas, descripción completa, características, precio, cantidad y consulta al equipo. Favoritos usa un botón de texto independiente del corazón del catálogo. En **Administración → Productos → Editar**, completa **Características técnicas**, una por línea (`Marca: ...`, `Memoria RAM: ...`, `Puertos: ...`, etc.). Se muestran únicamente los datos que registres; no se deducen procesadores, capacidad ni garantías del nombre del producto. El campo es opcional y también puede usarse al crear productos.
-
-Este cambio no requiere SQL: conserva la columna `products.description`, separando el texto general de las características con el encabezado legible `Características técnicas:`. Al editar, los dos campos se recuperan por separado. Las descripciones antiguas siguen funcionando. `compartido/js/producto-detalles.js` comparte este formato entre administración y tienda; `tienda/css/producto.css` define la ficha ampliada.
-
-Con el servidor activo, `node scripts/probar-tienda-navegador.cjs` valida el recorrido de compra hasta el pago simulado, filtros, favoritos, vistas, chat y estados de error en cinco tamaños de pantalla. Requiere Playwright y Chromium, con las mismas variables opcionales de ubicación que las pruebas de atención. Usa datos simulados y no registra compras ni modifica Supabase.
-
-## Estructura del proyecto
-
-```text
-sistema_ventas_servicom_group/
-├── package.json
-├── README.md
-├── index.html                       Redirige a la tienda
-├── api/
-│   └── staff-users.js               Gestión privada de cuentas en Vercel
-├── supabase/
-│   └── schema.sql                   Tablas, seguridad (RLS), funciones y datos demo
-├── scripts/
-│   └── servidor-dev.js              Servidor de desarrollo (npm run dev)
-├── compartido/                      Código usado por la tienda y por el admin
-│   ├── css/base.css
-│   └── js/
-│       ├── supabase-config.js       URL y clave publishable de tu proyecto
-│       ├── datos.js                 Conexión y acceso a Supabase
-│       ├── utilidades.js
-│       └── tema.js
-├── tienda/                          Todo lo que ve el cliente
-│   ├── index.html
-│   ├── css/tienda.css
-│   ├── principal.js
-│   ├── catalogo/  (imagenes.js, catalogo.js, detalle.js)
-│   ├── carrito/   (sincronizacion.js, carrito.js)
-│   ├── favoritos/ (favoritos.js)
-│   ├── recientes/ (recientes.js)
-│   ├── compra/    (checkout.js)
-│   └── pedidos/   (pedidos.js)
-└── admin/                           Solo funcionalidades de administración
-    ├── index.html
-    ├── css/admin.css
-    ├── principal.js
-    ├── panel/     (panel.js, navegacion.js)
-    ├── pedidos/   (pedidos.js)
-    └── catalogo/  (productos.js, categorias.js, imagenes.js, formulario-producto.js)
-```
-
-Los scripts son clásicos (no módulos) y se cargan en el orden indicado al final de cada `index.html`: primero `compartido/`, luego las carpetas de la sección y al final `principal.js`. Las funciones son globales porque el HTML las invoca con `onclick`.
-
-## Funcionalidades principales
-
-- Catálogo tecnológico con búsqueda, filtro por categoría, orden y filtro de favoritos.
-- Detalle de producto con carrusel de imágenes.
-- Carrito con cantidades, eliminación individual y avisos de cambios de precio y stock.
-- Compra con datos de entrega, pago simulado y voucher.
-- Historial de pedidos con seguimiento y opción de comprar de nuevo.
-- Administración con Dashboard, Productos, Pedidos, Atención, Empleados, Contabilidad y Usuarios; cada rol ve sólo sus apartados.
-- Modo claro y oscuro.
-
-## Almacenamiento
-
-| Dónde | Clave / nombre | Contenido |
-|---|---|---|
-| Supabase · tabla `products` | — | Productos (precio, stock, estado, URLs de imágenes) |
-| Supabase · tabla `orders` | — | Pedidos con datos del cliente y detalle |
-| Supabase · tabla `user_roles` | — | Rol y estado de acceso de cada cuenta del equipo |
-| Supabase · tabla `admins` | — | Compatibilidad con dueños anteriores, sincronizada desde los roles |
-| Supabase · Storage | bucket `product-images` | Iconos e imágenes de detalle |
-| `localStorage` | `servicom_my_orders` | "Llaves" de los pedidos del cliente en este navegador |
-| `localStorage` | `servicom_cart` | Carrito del cliente |
-| `localStorage` | `servicom_favorites` | IDs de productos favoritos |
-| `localStorage` | `servicom_recent` | IDs de productos vistos recientemente |
-| `localStorage` | `servicom_theme` | Modo claro u oscuro |
-| `sessionStorage` | `servicom_cart_notices` | Avisos del carrito de la sesión |
-
-Los pedidos se crean con la función SQL `create_order`, que recalcula precios y descuenta stock en el servidor. Cada cliente ve solo sus pedidos gracias a una llave (`access_token`) guardada en su navegador. El catálogo se refresca cada 10 s y el admin cada 15 s.
-
-## Dimensiones de imágenes
-
-- Icono: **600 × 400 px** (horizontal).
-- Detalle: **800 × 1200 px** (vertical); se pueden subir varias.
-- Las dimensiones son exactas: una imagen con otra resolución se rechaza.
-
----
-
-# Resumen de funciones
-
-## `scripts/servidor-dev.js`
-
-| Función | Qué hace |
-|---|---|
-| `readPort()` | Lee el puerto desde `--port`, desde la variable `PORT` o usa 5173. |
-| `send(res, status, body, type)` | Responde con el código, el contenido y el tipo indicados, sin caché. |
-| `handle(req, res)` | Atiende cada petición: recarga automática, redirección de `/` a `/tienda/`, protección de rutas y archivos estáticos. |
-| `serveFile(file, res)` | Lee un archivo y lo envía con su tipo MIME; en los HTML inserta el script de recarga automática. |
-| `watchChanges()` | Vigila los archivos del proyecto y avisa a los navegadores abiertos para que se recarguen. |
-
-## `compartido/js/datos.js`
-
-| Elemento | Qué hace |
-|---|---|
-| `sb` | Cliente de Supabase (`null` si falta configurar `supabase-config.js`). |
-| `defaultProducts` | Productos de demostración (usados por "Restaurar datos demo"). |
-| `getDB()` | Devuelve productos y pedidos desde la memoria (rápido, síncrono). |
-| `initDB(scope)` / `refreshDB()` | Define si la página es `tienda` o `admin` y descarga los datos de Supabase; devuelve `true` si algo cambió. |
-| `apiInsertProduct` / `apiPatchProduct` / `apiDeleteProduct` | Crear, modificar y eliminar productos (solo administrador). |
-| `apiUpdateOrderStatus(id, status)` | Cambia el estado de un pedido (dueño y empleado); excluye las llaves privadas. |
-| `apiCreateOrder(customer, items)` | Crea el pedido con la función `create_order` y recuerda su llave. |
-| `apiResetDemo()` | Borra pedidos y productos y recarga los 10 productos demo. |
-
-## `compartido/js/utilidades.js`
-
-| Elemento | Qué hace |
-|---|---|
-| `$(selector)` | Atajo de `document.querySelector`. |
-| `money(n)` | Da formato monetario peruano, por ejemplo `S/ 1899.90`. |
-| `escapeHTML(v)` | Escapa texto para insertarlo en HTML sin riesgo (datos de clientes, nombres). |
-| `toast(msg, actionLabel, actionFn)` | Muestra una notificación flotante, con botón de acción opcional (por ejemplo "Ver carrito"). |
-
-## `compartido/js/tema.js`
-
-| Elemento | Qué hace |
-|---|---|
-| `THEME_KEY` | Clave donde se guarda la preferencia de tema. |
-| `applyTheme(theme)` | Aplica el modo claro u oscuro y actualiza el icono y las etiquetas del interruptor (☀ / ☾). |
-| `initTheme()` | Carga la preferencia guardada (o la del sistema) y conecta el interruptor. |
-
-## `compartido/css/base.css`
-
-Variables de diseño (colores, radios, sombras, tipografías), estilos base, botones, barra superior, interruptor de tema, modales genéricos, formularios (`.form-grid`), notificación `toast`, secciones y modo oscuro de esos elementos.
-
----
-
-## Tienda
-
-### `tienda/catalogo/imagenes.js`
-
-| Función | Qué hace |
-|---|---|
-| `imageRef(p, mode)` | Elige la referencia de imagen del producto: `icon` para el catálogo o `detail` para el detalle. |
-| `resolveImageRef(ref)` | Devuelve la URL pública de la imagen guardada en Supabase Storage. |
-| `productImage(p, cls, mode)` | Genera la etiqueta `<img>` de un producto (o su emoji si no tiene imagen). |
-| `hydrateImages(root)` | Carga las imágenes de un contenedor desde sus URLs. |
-
-### `tienda/catalogo/catalogo.js`
+## Configuración de Vercel
 
-| Función | Qué hace |
-|---|---|
-| `loadCategories()` | Llena el filtro de categorías con las que existen en el catálogo. |
-| `sortProducts(list, sortBy)` | Ordena por precio, nombre o disponibilidad. |
-| `productCardHTML(p)` | Construye la tarjeta de un producto: favorito, aviso de stock, ver producto y compra rápida. |
-| `emptyStateHTML()` | Mensaje de "sin resultados" con botón para quitar filtros. |
-| `resetFilters()` | Limpia búsqueda, categoría, orden y filtro de favoritos. |
-| `updateSearchClearVisibility()` | Muestra u oculta la "×" del buscador según haya texto. |
-| `renderProducts()` | Dibuja el catálogo respetando búsqueda, categoría, orden, favoritos y productos activos. |
-
-### `tienda/catalogo/detalle.js`
+Para administrar cuentas desde el panel, agrega estas variables al entorno **Production** y vuelve a desplegar:
 
-| Función | Qué hace |
-|---|---|
-| `detailCarousel(p)` | Construye el carrusel con las imágenes de detalle (flechas y puntos si hay más de una). |
-| `openProduct(id)` | Abre el detalle del producto, lo registra como visto y configura cantidad, carrusel, "Agregar al carrito" y "Comprar ahora". |
+| Variable | Contenido |
+| --- | --- |
+| `SUPABASE_URL` | URL base HTTPS del mismo proyecto de Supabase, sin rutas adicionales. |
+| `SUPABASE_SERVICE_ROLE_KEY` | Clave privada `service_role` del proyecto. Configúrala como Secret. |
 
-### `tienda/carrito/sincronizacion.js`
+La función [api/staff-users.js](api/staff-users.js) valida la sesión y el rol de administrador antes de crear cuentas o cambiar contraseñas. La clave privada no se incluye en los archivos del navegador.
 
-| Elemento | Qué hace |
-|---|---|
-| `cart` | Estado del carrito; cada ítem guarda el último precio y stock conocidos. |
-| `cartNotices` | Historial de avisos visibles en el carrito. |
-| `addCartNotice(message, type)` | Agrega un aviso (precio, stock o advertencia) a la parte superior del carrito. |
-| `renderCartNotices()` | Dibuja los avisos en `#cartNotifications`. |
-| `syncCartWithCatalog()` | Compara el carrito con el catálogo: avisa cambios de precio y stock, ajusta cantidades y retira productos inexistentes, inactivos o sin stock. |
-
-### `tienda/carrito/carrito.js`
+## Accesos del equipo
 
-| Función | Qué hace |
-|---|---|
-| `FREE_SHIPPING_THRESHOLD` | Monto desde el cual el envío prioritario es gratis. |
-| `saveCart()` | Sincroniza y guarda el carrito, y actualiza la interfaz. |
-| `updateCount()` | Actualiza el contador del botón Carrito. |
-| `addToCart(id, qty, silent)` | Agrega un producto validando el stock. |
-| `quickAdd(id)` | Agrega 1 unidad desde la tarjeta del catálogo. |
-| `changeQty(id, d)` | Sube o baja la cantidad sin superar el stock. |
-| `removeFromCart(id)` | Elimina un producto del carrito. |
-| `clearCart()` | Vacía el carrito previa confirmación. |
-| `renderShippingProgress(total)` | Muestra cuánto falta para el envío prioritario gratis. |
-| `renderCart()` | Dibuja productos, cantidades, total y progreso de envío. |
-| `totalCart()` | Calcula el total con precios y stock actuales. |
-| `openCart()` / `closeCart()` | Abren y cierran el carrito lateral. |
-
-### `tienda/favoritos/favoritos.js`
-
-| Función | Qué hace |
-|---|---|
-| `saveFavorites()` | Guarda los favoritos y actualiza el contador. |
-| `isFavorite(id)` | Indica si un producto es favorito. |
-| `updateFavCount()` | Actualiza el contador de favoritos de la barra superior. |
-| `toggleFavorite(id)` | Agrega o quita un favorito y refresca catálogo, recientes y detalle. |
-| `setOnlyFavorites(v)` | Activa o desactiva el filtro "solo favoritos". |
-
-### `tienda/recientes/recientes.js`
-
-| Función | Qué hace |
-|---|---|
-| `trackRecent(id)` | Registra un producto como visto (máximo 8, sin duplicados). |
-| `renderRecent()` | Dibuja la franja "Vistos recientemente"; se oculta si no hay historial. |
-
-### `tienda/compra/checkout.js`
-
-| Función | Qué hace |
-|---|---|
-| `checkout()` | Abre el formulario de entrega (DNI, teléfono, nombre, correo, dirección). |
-| `showPayment(c)` | Muestra el pago con tarjeta simulado; no se hace ningún cargo real. |
-| `finishPayment(c)` | Registra el pedido, descuenta el stock, vacía el carrito y muestra el voucher. |
-| `showVoucher(o)` | Muestra la constancia de compra simulada. |
-
-### `tienda/pedidos/pedidos.js`
-
-| Función | Qué hace |
-|---|---|
-| `reorder(orderId)` | Vuelve a agregar al carrito los productos de un pedido, respetando el stock actual. |
-| `openOrders()` | Muestra el historial y el seguimiento: Confirmado → Despachando → Enviando → Entregado. |
-| `closeAll()` | Cierra el carrito y todos los modales. |
-
-### `tienda/principal.js`
-
-Conecta los botones y campos de `tienda/index.html` con sus funciones (carrito, pedidos, buscador, categoría, orden, favoritos, cierre de modales y tecla Esc).
-
-| Función | Qué hace |
-|---|---|
-| `initStore()` | Carga los datos de Supabase, categorías, contadores, catálogo, carrito y recientes. |
-
-Además, cada segundo sincroniza el carrito con el catálogo en memoria, y cada 10 s (o al volver a la pestaña) vuelve a descargar el catálogo de Supabase para detectar cambios de precio y stock.
-
-### `tienda/css/tienda.css`
-
-Portada, catálogo y tarjetas, carrito lateral, detalle y carrusel, checkout y voucher, pedidos, vistos recientemente, responsive y modo oscuro de la tienda.
-
----
-
-## Administración
-
-### `admin/panel/panel.js`
-
-| Función | Qué hace |
-|---|---|
-| `LOW_STOCK_LIMIT` | Stock máximo (10) para considerar un producto con stock bajo. |
-| `renderStats()` | Muestra los indicadores: productos, activos, pedidos y ventas demo. |
-| `renderRecentOrders()` | Lista los 5 pedidos más recientes con total y estado. |
-| `renderLowStock()` | Lista los productos con stock bajo o agotados. |
-| `renderCategorySummary()` | Muestra por categoría la cantidad de productos y unidades en stock con barras. |
-| `render()` | Actualiza todo el panel: dashboard, tabla de productos, pedidos y contador del menú. |
-
-También conecta el botón "Restaurar datos demo".
-
-### `admin/panel/navegacion.js`
-
-| Elemento | Qué hace |
-|---|---|
-| `ADMIN_VIEWS` | Pestañas disponibles: `dashboard`, `productos`, `pedidos` y `atencion` (el enlace antiguo `#categorias` redirige a `productos`). |
-| `showView(name)` | Muestra la pestaña elegida, marca el enlace activo del menú lateral y oculta las demás. |
-
-La pestaña activa se guarda en la URL (`#dashboard`, `#productos`, `#pedidos`), así que se conserva al recargar.
-
-### `admin/pedidos/pedidos.js`
-
-| Función | Qué hace |
-|---|---|
-| `ORDER_STATUSES` | Estados de seguimiento: Confirmado, Despachando, Enviando, Entregado. |
-| `renderOrdersTable()` | Dibuja la tabla de pedidos con su estado y detalle. |
-| `updateOrderStatus(id, s)` | Cambia el estado de seguimiento de un pedido. |
-| `updateOrdersBadge()` | Muestra en el menú cuántos pedidos aún no están entregados. |
-
-### `admin/catalogo/productos.js`
-
-| Función | Qué hace |
-|---|---|
-| `normalizeText(v)` | Normaliza texto (minúsculas y sin tildes) para buscar. |
-| `productRowHTML(p)` | Construye la fila de un producto: categoría, precio, stock (con etiqueta "Bajo" o "Agotado"), estado, Editar y Eliminar. |
-| `loadFilterCategories()` | Llena el filtro de categorías conservando la selección actual. |
-| `getFilteredProducts()` | Devuelve los productos que cumplen nombre, categoría y stock (bajo = 10 o menos, alto = más de 10), ordenados por nombre. |
-| `renderProductsTable()` | Dibuja la tabla única de productos con el contador "Mostrando X de Y". |
-| `clearProductFilters()` | Limpia los tres filtros. |
-| `updateProduct(id, k, v)` | Modifica precio, stock o estado activo (valida números); la tienda detecta el cambio automáticamente. |
-| `deleteProduct(id)` | Elimina un producto previa confirmación. |
-
-### `admin/catalogo/categorias.js`
-
-| Función | Qué hace |
-|---|---|
-| `getCategories()` | Devuelve las categorías únicas, ordenadas alfabéticamente. |
-| `loadProductCategories(selected)` | Llena el selector de categoría del formulario de producto. |
-| `openCategoryModal()` | Abre la ventana para crear una categoría. |
-| `closeCategoryModal()` | Cierra la ventana y limpia el campo. |
-| `createCategory()` | Crea una categoría nueva, evita duplicados y la deja seleccionada. |
-
-### `admin/catalogo/imagenes.js`
-
-| Elemento | Qué hace |
-|---|---|
-| `ICON_WIDTH`, `ICON_HEIGHT` | Dimensión exacta del icono (600 × 400). |
-| `DETAIL_WIDTH`, `DETAIL_HEIGHT` | Dimensión exacta de las imágenes de detalle (800 × 1200). |
-| `detailImageFiles` | Lista de imágenes de detalle elegidas antes de guardar. |
-| `saveProductImage(file, folder, suffix)` | Sube la imagen al bucket `product-images` y devuelve su URL pública. |
-| `validateImageDimensions(file, w, h)` | Comprueba que la imagen tenga exactamente las dimensiones requeridas. |
-| `resetImageForm()` | Limpia el formulario y las vistas previas. |
-| `previewCard(src, name, onRemove, kind)` | Crea una vista previa con botón "×" para quitar la imagen. |
-| `handleIconSelection()` | Valida el icono y muestra su vista previa. |
-| `handleDetailSelection()` | Valida y agrega varias imágenes de detalle. |
-| `renderDetailPreviews()` | Dibuja las imágenes de detalle elegidas y permite quitarlas una por una. |
-
-### `admin/catalogo/formulario-producto.js`
-
-| Evento | Qué hace |
-|---|---|
-| `editingProductId` | Id del producto que se está editando (`null` cuando se crea uno nuevo). |
-| `setProductFormMode(editing)` | Cambia título, texto del botón y nota de imágenes del formulario según sea crear o editar. |
-| `editProduct(id)` | Abre el formulario con los datos del producto cargados. |
-| Clic en "+ Nuevo producto" | Abre el formulario vacío, carga categorías y limpia las imágenes. |
-| Envío de `#productForm` | Valida datos e imágenes y guarda: crea el producto, o actualiza el existente (si no se eligen imágenes nuevas conserva las actuales). |
-
-### `admin/principal.js`
-
-Muestra el login (Supabase Auth), consulta el rol con `get_my_staff_role()`, carga los datos permitidos para esa cuenta, refresca los datos y permisos cada 15 s y gestiona "Cerrar sesión". `admin/acceso.js` define la navegación por rol y la transición para el dueño con el esquema anterior.
-
-### `admin/css/admin.css`
-
-Menú lateral, títulos y tarjetas del panel, indicadores, tarjetas del dashboard, filtros y tabla de productos, tablas, formulario de producto, selector de categoría, carga y vista previa de imágenes, ventana de nueva categoría, responsive y modo oscuro del admin.
-
----
-
-## Cambios de la reorganización
-
-- `app.js`, `admin.js`, `styles.css`, `theme.js` e `image-db.js` se repartieron por funcionalidad en las carpetas `tienda/`, `admin/` y `compartido/`.
-- `getDB`, `saveDB`, `money`, `toast`, `$` y los productos de demostración estaban repetidos en `app.js` y `admin.js`; ahora hay una sola copia en `compartido/`.
-- El admin ahora tiene menú lateral con tres pestañas (Dashboard, Categorías y Pedidos); los pedidos pasaron a `admin/pedidos/`.
-- La función `render()` del admin se dividió en `renderStats`, `renderCategoryGroups` y `renderOrdersTable`, y `render()` las llama juntas.
-- Se eliminaron todos los comentarios del código; esta documentación reemplaza a `DOCUMENTACION.md`.
-- El resto de la lógica no se modificó.
-- La pestaña "Categorías" pasó a ser "Productos": en lugar de grupos por categoría, ahora hay una sola tabla con todos los productos, filtros por nombre, categoría y stock (bajo/alto) y un botón Editar que abre el formulario con los datos del producto. `renderCategoryGroups` se reemplazó por `renderProductsTable`.
+| Rol | Apartados disponibles |
+| --- | --- |
+| Administrador | Dashboard, Productos, Pedidos, Atención, Empleados, Contabilidad y Usuarios. |
+| Empleado | Pedidos y Atención. |
+| Contable | Dashboard y Contabilidad. |
+
+Las cuentas se autentican con Supabase Auth. La tabla `user_roles` guarda sus permisos; Supabase comprueba el acceso en cada operación. El contable recibe un dashboard agregado sin datos personales de los pedidos.
+
+Una ficha de Empleados es independiente de una cuenta de acceso. Las sucursales iniciales son Chimbote y Nuevo Chimbote.
+
+## Datos y almacenamiento
+
+Los productos, pedidos, conversaciones, empleados y movimientos contables se guardan en Supabase. Las imágenes utilizan el bucket `product-images`.
+
+El navegador conserva el carrito, favoritos, productos vistos y preferencias en `localStorage`. También guarda las llaves necesarias para recuperar los pedidos y la conversación de ese navegador. Los avisos temporales del carrito se guardan en `sessionStorage`.
+
+Los pedidos se registran mediante `create_order`, que valida los datos, recalcula los precios y descuenta stock en una transacción. Sus ingresos se contabilizan en **Ingreso general**, sin asignarlos a una sucursal. Las compras y los gastos se registran manualmente.
+
+El dashboard permite consultar los últimos 7, 30 o 90 días y compararlos con el período anterior. Las fechas utilizan la zona horaria `America/Lima`. Los indicadores de inventario y pedidos pendientes incluyen todo el historial.
+
+## Imágenes y características
+
+En Administración → Productos se pueden cargar imágenes y completar las características técnicas del producto, una por línea, como `Marca: ...` o `Memoria RAM: ...`.
+
+- Imagen del catálogo: 600 × 400 píxeles.
+- Imágenes de detalle: 800 × 1200 píxeles; se admite más de una.
+- Logo de la página: [compartido/imagenes/logo-servicom.png](compartido/imagenes/logo-servicom.png).
+
+## Organización
+
+| Carpeta | Contenido |
+| --- | --- |
+| `tienda/` | Catálogo, carrito, compra, pedidos y chat del cliente. |
+| `admin/` | Panel administrativo y sus apartados. |
+| `compartido/` | Estilos, configuración y funciones comunes. |
+| `api/` | Función de servidor para administrar cuentas. |
+| `supabase/` | Instalación de la base de datos y carga opcional de ventas. |
+| `scripts/` | Servidor de desarrollo local. |
+| `docs/` | Guías de configuración y uso. |
+
+## Guías
+
+- [Usuarios, roles y permisos](docs/usuarios-y-roles.md).
+- [Administración de cuentas e historial](docs/usuarios-del-panel.md).
+- [Empleados y contabilidad](docs/gestion-empresarial.md).
+- [Ventas y compras](docs/ventas-y-compras.md).
+- [Carga opcional de 120 ventas de demostración](docs/ventas-de-demostracion.md).

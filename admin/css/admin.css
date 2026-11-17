@@ -253,9 +253,6 @@ a.dashboard-alert:hover,button.dashboard-alert:hover{border-color:var(--chart-ac
 .dashboard-empty b{font-size:13px;color:var(--ink)}
 .dashboard-empty p{font-size:12px;line-height:1.7;max-width:280px;margin:8px 0 0}
 .dashboard-footer{display:flex;justify-content:space-between;align-items:start;gap:24px;color:var(--muted);font-size:11px;line-height:1.7;padding-bottom:12px}
-.dashboard-footer details{max-width:280px;flex:none;text-align:right}
-.dashboard-footer summary{cursor:pointer}
-.dashboard-footer .secondary-btn{font-size:11px;padding:9px 12px}
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 .dark-mode .dashboard{--chart-accent:#9cafff;--positive:#63dbb0;--negative:#ff93a1}
 .dark-mode .dashboard-alert.warning .alert-symbol{background:#3a2a0c;color:#f6c260}
@@ -283,7 +280,6 @@ a.dashboard-alert:hover,button.dashboard-alert:hover{border-color:var(--chart-ac
   .stat-heading>span{display:none}
   .stat-trend>span{display:block}
   .dashboard-footer{flex-direction:column}
-  .dashboard-footer details{text-align:left;max-width:100%}
   .status-chart{flex-direction:row;gap:20px}
   .status-chart svg{width:130px;flex:none}
   .status-legend{margin:0}

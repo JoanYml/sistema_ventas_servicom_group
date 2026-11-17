@@ -5,8 +5,7 @@
   "description": "Sistema de ventas Servicom Group: tienda y panel de administración.",
   "scripts": {
     "dev": "node scripts/servidor-dev.js",
-    "start": "node scripts/servidor-dev.js",
-    "test": "node --test"
+    "start": "node scripts/servidor-dev.js"
   },
   "engines": {
     "node": ">=20"

@@ -79,7 +79,7 @@ Si se corta la conexión, no se repite automáticamente una operación cuyo resu
 
 Una contraseña podría haber cambiado aunque falle la confirmación final. En ese caso la aplicación lo indica y conserva la solicitud para revisarla. El historial distingue solicitudes, resultados confirmados y resultados no confirmados; no los presenta todos como operaciones exitosas.
 
-## Desarrollo local y pruebas
+## Desarrollo local
 
 Sin credenciales privadas se puede revisar la interfaz y gestionar roles/logs sobre una base preparada; crear cuentas requiere el servidor configurado. Para probar localmente esa función, guarda las dos variables anteriores en `.env.local` (ignorado por Git) y, con Node.js 20.6 o superior, ejecuta:
 
@@ -88,15 +88,3 @@ node --env-file=.env.local scripts/servidor-dev.js
 ```
 
 El servidor local bloquea rutas de archivos ocultos y sirve `/api/staff-users` como una función, sin publicar su código o `.env.local`. En Vercel se utilizan sus variables de entorno, no ese archivo.
-
-Las pruebas no necesitan claves reales ni escriben en tu Supabase:
-
-```bash
-npm test
-# Con PGlite instalado en una ubicación local:
-SERVICOM_PGLITE_PATH=/ruta/a/@electric-sql/pglite node scripts/probar-usuarios-sql.cjs
-# Con npm run dev activo, Chromium y Playwright:
-SERVICOM_PGLITE_PATH=/ruta/a/@electric-sql/pglite node scripts/probar-usuarios-navegador.cjs
-```
-
-Las pruebas de navegador ejecutan la función de cuentas contra una simulación local de Auth y las RPC reales sobre PostgreSQL local, verificando permisos, creación, búsquedas, auditoría, cambios y revocación. La validación de las variables reales y la entrega de credenciales corresponden al despliegue del proyecto.

@@ -90,15 +90,3 @@ select public.assign_staff_role('empleado@tuempresa.com', 'employee', true);
 ```
 
 La base aplica los cambios en la siguiente operación, incluso si el usuario conserva una sesión abierta. La web comprueba el rol cada 15 segundos y recarga la sesión si cambió. Las asignaciones y revocaciones quedan en `public.staff_role_history`, visible sólo para el dueño.
-
-## Pruebas locales
-
-`npm test` comprueba la matriz de apartados y la carga mínima de datos. Las pruebas opcionales usan PostgreSQL local mediante PGlite, sin escribir en tu Supabase:
-
-```bash
-SERVICOM_PGLITE_PATH=/ruta/a/@electric-sql/pglite node scripts/probar-roles-sql.cjs
-# Con npm run dev activo, Playwright y Chromium disponibles:
-SERVICOM_PGLITE_PATH=/ruta/a/@electric-sql/pglite node scripts/probar-roles-navegador.cjs
-```
-
-El navegador de pruebas admite `SERVICOM_PLAYWRIGHT_PATH` y `SERVICOM_CHROMIUM_PATH`.

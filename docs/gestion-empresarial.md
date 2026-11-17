@@ -79,16 +79,3 @@ Las operaciones se validan en PostgreSQL: permisos del apartado, importes finito
 Es contabilidad de gestión. Con `ventas_contabilidad.sql`, **todos los pedidos generan ingresos automáticos en Ingreso general, sin sucursal**, y las compras se registran manualmente. Los pagos actuales de la tienda siguen siendo simulados; estos asientos no acreditan cobros bancarios reales. El inventario del catálogo está valorado a precio de venta para el dashboard; la contabilidad sólo incorpora inventario y costos que registres a su costo real.
 
 No emite boletas/facturas SUNAT, no realiza conciliación bancaria automática y no calcula impuestos o planillas. Los documentos usan su importe total; para separar IGV u otros conceptos, utiliza asientos manuales con los importes contables correspondientes, sin duplicar operaciones. El cierre mensual bloquea el período; no genera automáticamente asientos de cierre anual o distribución del resultado.
-
-## Verificación de desarrollo
-
-`npm test` cubre cálculos exactos, saldo versus resultado, reversiones, filtros, vencimientos y CSV. Las comprobaciones de SQL y navegador son opcionales y usan PostgreSQL local mediante PGlite; no escriben en Supabase remoto.
-
-```bash
-# PGlite, Playwright y Chromium deben estar disponibles para estas pruebas opcionales.
-SERVICOM_PGLITE_PATH=/ruta/a/@electric-sql/pglite node scripts/probar-gestion-sql.cjs
-# Con npm run dev en otra terminal:
-SERVICOM_PGLITE_PATH=/ruta/a/@electric-sql/pglite node scripts/probar-gestion-navegador.cjs
-```
-
-El script de navegador acepta `SERVICOM_PLAYWRIGHT_PATH` y `SERVICOM_CHROMIUM_PATH`; por defecto utiliza `playwright` y `/usr/bin/chromium`.

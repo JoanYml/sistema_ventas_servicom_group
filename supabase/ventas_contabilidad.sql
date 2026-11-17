@@ -143,7 +143,7 @@ revoke all on function public.finance_protect_order() from public,anon,authentic
 drop trigger if exists finance_protect_order on public.orders;
 create trigger finance_protect_order before update or delete on public.orders for each row execute function public.finance_protect_order();
 
--- El usuario confirmó importar todas las ventas existentes; todas pertenecen a Ingreso general.
+-- Importar las ventas existentes como ingresos generales, sin asignar sucursal.
 insert into public.finance_order_sales(order_id,order_date,amount,historical,approved)
  select id,(created_at at time zone 'America/Lima')::date,total,true,true from public.orders on conflict do nothing;
 

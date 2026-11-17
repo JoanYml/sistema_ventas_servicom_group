@@ -15,11 +15,3 @@ Los clientes son ficticios y los pedidos llevan identificadores `DEMO-VENTA-0001
 La carga usa la integración normal de pedidos: sus importes también se incluyen como **Ingreso general en Contabilidad**. Si un mes está cerrado o la cuenta de destino no está disponible, el ingreso queda pendiente con su incidencia. Revísalo en Contabilidad → Ventas; el script no reabre períodos ni cambia tu configuración.
 
 Puedes ejecutar el archivo otra vez: los pedidos existentes conservan sus fechas, estados e importes y no se duplican sus asientos. Las fechas se calculan en la primera carga según **America/Lima**; repetirlo semanas después no desplaza el historial. Los pedidos con registro contable tienen la misma protección contra eliminación que los demás. El lote es opcional y no forma parte del despliegue automático.
-
-## Prueba local
-
-Con PGlite disponible, esta prueba instala los módulos en una base temporal y verifica la carga, los gráficos y métricas del dueño/contable, los asientos balanceados, la conservación del inventario y la repetición sin duplicados. No se conecta a tu Supabase:
-
-```bash
-SERVICOM_PGLITE_PATH=/ruta/a/@electric-sql/pglite node scripts/probar-ventas-demo-sql.cjs
-```
