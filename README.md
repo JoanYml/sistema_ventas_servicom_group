@@ -57,6 +57,8 @@ El dashboard utiliza los productos y pedidos de Supabase y permite consultar:
 
 El inventario no cambia al seleccionar otro período. Los importes corresponden a pedidos con pagos simulados; no representan cobros bancarios verificados. Cuando no existe una base anterior para comparar, se indica sin inventar un porcentaje. La carga administrativa pagina los registros para evitar que el límite de respuesta de Supabase recorte los indicadores.
 
+Para una exposición con más información, ejecuta completo [supabase/ventas_demo.sql](supabase/ventas_demo.sql) en el SQL Editor de Supabase y pulsa Actualizar en el dashboard. Añade 120 ventas ficticias identificadas como `DEMO-VENTA`, sin duplicarlas al repetir la carga ni modificar el stock actual. Los pedidos también generan su ingreso contable general. Consulta la [guía de carga de ventas de demostración](docs/ventas-de-demostracion.md).
+
 ### Pruebas
 
 ```bash
