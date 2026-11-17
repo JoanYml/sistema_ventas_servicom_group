@@ -44,6 +44,15 @@ function handle(req, res) {
     return send(res, 400, "Solicitud inválida");
   }
 
+  if (pathname === "/api/staff-users") {
+    require("../api/staff-users.js")(req, res).catch(() => {
+      if (!res.headersSent) send(res, 500, "No se pudo completar la operación");
+    });
+    return;
+  }
+  if (pathname.startsWith("/api/")) return send(res, 404, "No encontrado");
+  if (pathname.split("/").some(part => part.startsWith("."))) return send(res, 403, "Acceso denegado");
+
   if (pathname === "/__recargar") {
     res.writeHead(200, { "Content-Type": "text/event-stream", "Cache-Control": "no-store", Connection: "keep-alive" });
     res.write("retry: 1000\n\n");

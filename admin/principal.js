@@ -34,6 +34,7 @@ async function showAdmin(){
   $(".admin-layout").classList.remove("hidden");
   $("#logoutBtn").classList.remove("hidden");
   await loadAdminData();
+  recordStaffSession('opened');
   startAdminSupport();
   startBusinessManagement();
   clearInterval(adminPollTimer);
@@ -66,6 +67,7 @@ $("#loginForm").onsubmit=async e=>{
 };
 
 $("#logoutBtn").onclick=async()=>{
+  await recordStaffSession('closed');
   clearInterval(adminPollTimer);
   clearInterval(staffAccessTimer);
   stopAdminSupport();

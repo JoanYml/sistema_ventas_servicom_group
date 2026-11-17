@@ -4,11 +4,13 @@ Se usa **Supabase Auth** para correo/contraseña y **`public.user_roles`** para 
 
 | Rol en la base | Nombre en pantalla | Apartados |
 |---|---|---|
-| `admin` | Administrador | Dashboard, Productos, Pedidos, Atención, Empleados y Contabilidad. |
+| `admin` | Administrador | Dashboard, Productos, Pedidos, Atención, Empleados, Contabilidad y Usuarios. |
 | `employee` | Empleado | Pedidos y Atención. |
 | `accountant` | Contable | Dashboard y Contabilidad. |
 
 Puedes crear varias cuentas por rol, cada una con su correo y contraseña. Crear una cuenta de Auth por sí solo no concede acceso.
+
+Con el módulo nuevo, el dueño puede gestionar cuentas y permisos desde **Usuarios**. Actívalo siguiendo [Usuarios del panel](usuarios-del-panel.md); la asignación por SQL descrita aquí sigue disponible para la configuración inicial.
 
 ## 1. Activar los permisos
 
@@ -18,7 +20,8 @@ En **Supabase → SQL Editor**, ejecuta completo [supabase/roles.sql](../supabas
 2. `supabase/soporte.sql`
 3. `supabase/gestion_empresarial.sql`
 4. `supabase/roles.sql`
-5. **`supabase/ventas_contabilidad.sql` al final**, para los ingresos automáticos y las compras manuales.
+5. `supabase/ventas_contabilidad.sql`
+6. **`supabase/usuarios_auditoria.sql` al final**, para los ingresos automáticos y las compras manuales.
 
 Si ya tienes los tres primeros instalados, ejecuta `roles.sql` y después `ventas_contabilidad.sql`. Es una migración transaccional y repetible: conserva los productos, pedidos, conversaciones, empleados y contabilidad. Copia los administradores existentes de `public.admins` a `user_roles` con rol `admin`, conservando el acceso del dueño. No crea cuentas de Auth, no agrega contraseñas y no asigna roles al resto de usuarios.
 
@@ -43,7 +46,7 @@ select public.assign_staff_role('contable@tuempresa.com', 'accountant');
 
 La función comprueba que el correo exista en Auth; si no lo encuentra, no asigna nada. Puedes asignar un correo por vez. Usa los valores `admin`, `employee` y `accountant` exactamente como aparecen aquí.
 
-Las asignaciones se realizan desde SQL Editor o un entorno confiable con `service_role`. Ninguna cuenta de la web, incluido el dueño, puede modificar roles mediante la API pública del navegador. Nunca pegues una clave `service_role` en el frontend. No uses `user_metadata` para conceder permisos.
+La asignación inicial puede hacerse desde SQL Editor o un entorno confiable con `service_role`. La función `assign_staff_role` no se expone al navegador. Con `usuarios_auditoria.sql` instalado, el dueño puede modificar nombre, rol y acceso mediante `staff_update_user`, que valida sus permisos en el servidor. La creación y las contraseñas pasan por la función privada de Vercel. Nunca pegues `service_role` en el frontend ni uses `user_metadata` para conceder permisos.
 
 Consulta las asignaciones desde SQL Editor:
 

@@ -4,7 +4,7 @@ Web para catálogo, carrito, administración y pedidos, conectada a **Supabase**
 
 ## Conectar con Supabase (una sola vez)
 
-1. **Crear las tablas:** Supabase → *SQL Editor* → *New query*. Ejecuta completos, en orden: `supabase/schema.sql`, `supabase/soporte.sql`, `supabase/gestion_empresarial.sql`, `supabase/roles.sql` y **`supabase/ventas_contabilidad.sql` al final**.
+1. **Crear las tablas:** Supabase → *SQL Editor* → *New query*. Ejecuta completos, en orden: `supabase/schema.sql`, `supabase/soporte.sql`, `supabase/gestion_empresarial.sql`, `supabase/roles.sql`, `supabase/ventas_contabilidad.sql` y **`supabase/usuarios_auditoria.sql` al final**.
 2. **Crear el administrador:** *Authentication → Users → Add user → Create new user* (correo y contraseña, marca *Auto Confirm User*). Luego, en el *SQL Editor*:
    ```sql
    select public.assign_staff_role('TU_CORREO@ejemplo.com', 'admin');
@@ -17,11 +17,19 @@ La seguridad no depende de esconder la clave publishable: la protegen las polít
 
 ## Roles del equipo
 
-Se inicia sesión con Supabase Auth y el rol se guarda en `public.user_roles`: **admin** accede a todos los apartados; **employee**, sólo a Pedidos y Atención; **accountant**, sólo a Dashboard y Contabilidad. Los dueños existentes de `public.admins` conservan su acceso al ejecutar `roles.sql`. Una cuenta de Auth sin rol activo no accede al panel.
+Se inicia sesión con Supabase Auth y el rol se guarda en `public.user_roles`: **admin** accede a todos los apartados, incluido Usuarios; **employee**, sólo a Pedidos y Atención; **accountant**, sólo a Dashboard y Contabilidad. Los dueños existentes de `public.admins` conservan su acceso al ejecutar `roles.sql`. Una cuenta de Auth sin rol activo no accede al panel.
 
-Después de crear las cuentas, asigna sus roles desde SQL Editor con `public.assign_staff_role('correo@empresa.com', 'employee')` o `'accountant'`. Consulta la [guía de usuarios, permisos y revocación](docs/usuarios-y-roles.md). Si vuelves a ejecutar otros esquemas, ejecuta después `roles.sql` y `ventas_contabilidad.sql` para reinstalar los permisos y la integración actuales.
+Después de crear las cuentas, asigna sus roles desde SQL Editor con `public.assign_staff_role('correo@empresa.com', 'employee')` o `'accountant'`. Consulta la [guía de usuarios, permisos y revocación](docs/usuarios-y-roles.md). Si vuelves a ejecutar otros esquemas, ejecuta después `roles.sql`, `ventas_contabilidad.sql` y `usuarios_auditoria.sql` para reinstalar los permisos y la integración actuales.
 
 El dashboard contable usa datos agregados, sin descargar datos personales ni llaves de pedidos. La web oculta las acciones restringidas y Supabase valida los permisos también ante solicitudes directas.
+
+## Usuarios del panel y actividad del equipo
+
+El dueño puede crear cuentas, buscar usuarios por nombre/correo, filtrar por rol y acceso, editar permisos, desactivar/reactivar y restablecer contraseñas. «Ver actividad» muestra las acciones de una persona; «Cambios en su cuenta» muestra los cambios administrativos que recibió. Los logs se filtran por fechas, apartado y rol en el momento de la acción, con paginación en el servidor. Empleados y contables no pueden acceder a este apartado ni consultar los logs.
+
+Activa **`supabase/usuarios_auditoria.sql` después de ventas_contabilidad.sql**. Para crear cuentas y restablecer contraseñas, configura en **Vercel** las variables privadas **`SUPABASE_URL`** y **`SUPABASE_SERVICE_ROLE_KEY`**, y vuelve a desplegar. Nunca pongas la clave privada en la configuración pública del navegador. La función Node.js `/api/staff-users` valida la sesión y el rol de dueño antes de utilizar la API administrativa de Supabase Auth.
+
+El historial registra desde la activación cambios de productos, estados de pedidos, atención, empleados, contabilidad y accesos. No guarda contraseñas, tokens privados ni conversaciones completas; los procesos automáticos se identifican como Sistema. No se reconstruyen eventos que no se registraron antes. Las solicitudes de cuentas se conservan para evitar repetir operaciones cuyo resultado no se pudo confirmar. Consulta la [guía de activación, uso y límites de la auditoría](docs/usuarios-del-panel.md).
 
 ## Cómo ejecutarlo
 
@@ -83,7 +91,7 @@ Si el cliente necesita ayuda humana, puede revisar y enviar una consulta con su 
 
 ### Activación en Supabase
 
-Después de tener el esquema principal y el administrador configurados, ejecuta **todo [supabase/soporte.sql](supabase/soporte.sql)** en el SQL Editor del mismo proyecto Supabase. Es una migración aditiva e idempotente: no reemplaza productos, pedidos ni usuarios. No se necesita pegar claves privadas ni cambiar la configuración pública del frontend. Publicar el código en GitHub no ejecuta esta migración. Si ya usas los roles, vuelve a ejecutar `supabase/roles.sql` y `supabase/ventas_contabilidad.sql` al terminar.
+Después de tener el esquema principal y el administrador configurados, ejecuta **todo [supabase/soporte.sql](supabase/soporte.sql)** en el SQL Editor del mismo proyecto Supabase. Es una migración aditiva e idempotente: no reemplaza productos, pedidos ni usuarios. No se necesita pegar claves privadas ni cambiar la configuración pública del frontend. Publicar el código en GitHub no ejecuta esta migración. Si ya usas los roles, vuelve a ejecutar `supabase/roles.sql`, `supabase/ventas_contabilidad.sql` y `supabase/usuarios_auditoria.sql` al terminar.
 
 Sin esa migración, las preguntas frecuentes siguen funcionando y la derivación muestra un aviso de que la atención aún no está disponible. Administración indica cómo activar la bandeja; no se simula que una consulta fue enviada.
 
@@ -123,6 +131,8 @@ sistema_ventas_servicom_group/
 ├── package.json
 ├── README.md
 ├── index.html                       Redirige a la tienda
+├── api/
+│   └── staff-users.js               Gestión privada de cuentas en Vercel
 ├── supabase/
 │   └── schema.sql                   Tablas, seguridad (RLS), funciones y datos demo
 ├── scripts/
@@ -162,7 +172,7 @@ Los scripts son clásicos (no módulos) y se cargan en el orden indicado al fina
 - Carrito con cantidades, eliminación individual y avisos de cambios de precio y stock.
 - Compra con datos de entrega, pago simulado y voucher.
 - Historial de pedidos con seguimiento y opción de comprar de nuevo.
-- Administración con Dashboard, Productos, Pedidos, Atención, Empleados y Contabilidad; cada rol ve sólo sus apartados.
+- Administración con Dashboard, Productos, Pedidos, Atención, Empleados, Contabilidad y Usuarios; cada rol ve sólo sus apartados.
 - Modo claro y oscuro.
 
 ## Almacenamiento

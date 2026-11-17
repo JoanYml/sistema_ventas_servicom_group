@@ -1,5 +1,5 @@
 const STAFF_ROLES={admin:'Administrador',employee:'Empleado',accountant:'Contable'};
-const STAFF_SECTIONS={admin:['dashboard','productos','pedidos','atencion','empleados','contabilidad'],employee:['pedidos','atencion'],accountant:['dashboard','contabilidad']};
+const STAFF_SECTIONS={admin:['dashboard','productos','pedidos','atencion','empleados','contabilidad','usuarios'],employee:['pedidos','atencion'],accountant:['dashboard','contabilidad']};
 let staffRole=null,staffEmail='',staffLegacyAccess=false;
 function staffCan(section,role=staffRole){return Object.hasOwn(STAFF_SECTIONS,role)&&STAFF_SECTIONS[role].includes(section)}
 function staffDefaultView(role=staffRole){return STAFF_SECTIONS[role]?.[0]||null}

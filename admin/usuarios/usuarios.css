@@ -1,0 +1,22 @@
+.users-accounts-table{min-width:740px}
+.users-activity-table{min-width:830px}
+.users-filters{display:grid;grid-template-columns:minmax(200px,1.5fr) minmax(140px,1fr) minmax(140px,1fr);gap:14px;margin-bottom:20px}
+.users-filters label,.users-log-filters label{display:flex;flex-direction:column;gap:7px;font-size:12px;font-weight:600;min-width:0}
+.users-filters input,.users-filters select,.users-log-filters input,.users-log-filters select{width:100%;min-width:0;padding:11px 12px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--text);font:inherit}
+.users-log-filters{display:grid;grid-template-columns:repeat(3,minmax(130px,1fr));gap:12px;align-items:end;margin:22px 0}
+.users-log-filters .secondary-btn{min-height:40px}
+.users-row-actions,.users-page-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.users-page-actions{justify-content:flex-end;margin-top:18px;font-size:12px;color:var(--muted)}
+.users-row-actions button{white-space:nowrap}
+.users-target{display:block;max-width:260px;overflow-wrap:anywhere;font-family:var(--font-mono);font-size:11px}
+.users-log-details{margin-top:10px;font-size:12px;max-width:300px}
+.users-log-details summary{cursor:pointer;color:var(--brand-ink)}
+.users-log-details dl{display:grid;grid-template-columns:minmax(90px,.8fr) minmax(0,1.2fr);gap:8px;padding:12px;background:var(--surface-2);border-radius:6px}
+.users-log-details dt{color:var(--muted)}
+.users-log-details dd{margin:0;overflow-wrap:anywhere;white-space:pre-wrap}
+#usersActivityCard{scroll-margin-top:100px}
+#usersServerNotice{font-size:12px;line-height:1.7;color:var(--muted);background:var(--surface-2);padding:12px 16px;border:1px solid var(--line);border-radius:6px}
+#usersServerNotice[hidden],#usersLogModeLabel[hidden],#usersClearSelection[hidden],#usersResetPassword[hidden]{display:none}
+.dark-mode .users-log-details summary{color:#b1c2ff}
+@media(max-width:850px){.users-filters{grid-template-columns:1fr 1fr}.users-filters label:first-child{grid-column:1/-1}.users-log-filters{grid-template-columns:1fr 1fr}}
+@media(max-width:550px){.users-filters,.users-log-filters{grid-template-columns:minmax(0,1fr)}.users-page-actions{justify-content:flex-start}.users-filters input,.users-filters select,.users-log-filters input,.users-log-filters select{font-size:16px}.users-row-actions{flex-direction:column;align-items:flex-start}.users-row-actions button{font-size:11px}}

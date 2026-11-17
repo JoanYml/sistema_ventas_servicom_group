@@ -2,7 +2,7 @@ const {test}=require('node:test'),assert=require('node:assert/strict'),fs=requir
 const source=name=>fs.readFileSync(require.resolve('../'+name),'utf8');
 function context(){const c=vm.createContext({window:{}});vm.runInContext(source('compartido/js/datos.js'),c);vm.runInContext(source('admin/acceso.js'),c);return c}
 test('cada rol tiene exactamente sus apartados y las cuentas desconocidas no reciben acceso',()=>{
- const c=context(),sections=['dashboard','productos','pedidos','atencion','empleados','contabilidad'];
+ const c=context(),sections=['dashboard','productos','pedidos','atencion','empleados','contabilidad','usuarios'];
  for(const [role,allowed] of Object.entries({admin:sections,employee:['pedidos','atencion'],accountant:['dashboard','contabilidad']})){
   assert.deepEqual(sections.filter(section=>c.staffCan(section,role)),allowed);
  }

@@ -15,7 +15,7 @@ function managementOpenModal(title,body,onSubmit=null,submitLabel='Guardar'){
  $('#managementModal').classList.remove('hidden');document.body.classList.add('management-dialog-open');
  const first=$('#managementModalBody').querySelector('input:not([type=hidden]),select,textarea,button');(first||$('#managementClose')).focus();
 }
-function managementCloseModal(){if(managementSubmitting)return;managementModalVersion++;$('#managementModal').classList.add('hidden');document.body.classList.remove('management-dialog-open');if(managementTrigger?.isConnected)managementTrigger.focus()}
+function managementCloseModal(){if(managementSubmitting)return;managementModalVersion++;$('#managementModalBody').querySelectorAll('input[type=password]').forEach(input=>input.value='');$('#managementModal').classList.add('hidden');document.body.classList.remove('management-dialog-open');if(managementTrigger?.isConnected)managementTrigger.focus()}
 $('#managementClose').onclick=managementCloseModal;$('#managementCancel').onclick=managementCloseModal;
 $('#managementModal').onclick=event=>{if(event.target===$('#managementModal'))managementCloseModal()};
 document.addEventListener('keydown',event=>{
@@ -24,7 +24,7 @@ document.addEventListener('keydown',event=>{
  if(event.key==='Tab'){const controls=[...$('#managementModal').querySelectorAll('button:not(:disabled),input:not([type=hidden]):not(:disabled),select:not(:disabled),textarea:not(:disabled)')].filter(e=>!e.hidden&&e.getClientRects().length),first=controls[0],last=controls.at(-1);if(!first){event.preventDefault();return}if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus()}else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus()}}
 });
 function businessViewName(){return location.hash.slice(1)}
-async function reloadBusinessView(force=false){if(!businessManagementActive)return false;const view=businessViewName();if(view==='empleados'&&staffCan(view))return loadEmployees(force);if(view==='contabilidad'&&staffCan(view))return loadFinance(force);return true}
-function businessNavigate(view){if(businessManagementActive&&['empleados','contabilidad'].includes(view))reloadBusinessView(true)}
+async function reloadBusinessView(force=false){if(!businessManagementActive)return false;const view=businessViewName();if(view==='empleados'&&staffCan(view))return loadEmployees(force);if(view==='contabilidad'&&staffCan(view))return loadFinance(force);if(view==='usuarios'&&staffCan(view))return loadUsers(force);return true}
+function businessNavigate(view){if(businessManagementActive&&['empleados','contabilidad','usuarios'].includes(view))reloadBusinessView(true)}
 function startBusinessManagement(){if(!staffCan('empleados')&&!staffCan('contabilidad'))return;businessManagementActive=true;reloadBusinessView();clearInterval(businessManagementTimer);businessManagementTimer=setInterval(()=>{if(!document.hidden&&!managementSubmitting&&$('#managementModal').classList.contains('hidden'))reloadBusinessView()},15000)}
 function stopBusinessManagement(){businessManagementActive=false;clearInterval(businessManagementTimer);employeeLoadVersion++;financeLoadVersion++;employeeRows=[];employeesReady=false;employeeLoading=false;financeLoading=false;financeData=null;businessBranches=[];$('#employeeTable').replaceChildren();$('#financeJournalsBody').replaceChildren();$('#financeDocumentsBody').replaceChildren();managementCloseModal()}
